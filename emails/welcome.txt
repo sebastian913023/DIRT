@@ -1,0 +1,32 @@
+Subject: ⬡ SHELL BROKEN — Your DIRT Access Is Ready
+
+Hey {{firstName}},
+
+You're in. Operation Shell Break is live.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+YOUR 6-AGENT TEAM IS ONLINE
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+◈ APEX      — CEO · Strategic Orchestrator  (claude-opus-4-7)
+◎ SCOUT     — Research & Intelligence
+◐ SIGNAL    — Marketing & Content
+⬡ FORGE     — Dev & Product Engineering
+◆ VECTOR    — Sales & Lead Generation
+◉ RELAY     — Operations & Automation
+
+Company loaded: {{companyName}}
+Industry: {{industry}}
+30-day goal: {{goal}}
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+NEXT STEPS
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Login to your DIRT dashboard: {{dashboardUrl}}
+2. Your first daily cycle runs tonight at midnight
+3. 45 task credits are loaded and ready
+
+No revenue share. No hidden fees. Cancel anytime.
+
+— The DIRT Team

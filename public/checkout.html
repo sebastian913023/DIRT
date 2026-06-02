@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DIRT — Get In · $10 Launch</title>
+<meta name="description" content="Join Operation Shell Break. Deploy 6 autonomous AI agents for $10. Full platform access for 30 days."/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="DIRT — Get In · $10 Launch"/>
+<meta property="og:description" content="6 autonomous AI agents for $10. No revenue share. No hidden fees. Cancel anytime."/>
+<meta name="twitter:card" content="summary_large_image"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET & TOKENS ────────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --void:#000008;--card:#0C0918;--raised:#13102A;
+  --amber:#F5A623;--amber2:#FFD27A;--amber3:#C47B10;
+  --green:#39FF6E;--red:#FF2D55;--cyan:#00E5FF;
+  --white:#F0EEFF;--muted:#6B6490;--border:rgba(245,166,35,0.2);
+}
+html,body{
+  min-height:100vh;background:var(--void);
+  color:var(--white);font-family:'Barlow',sans-serif;cursor:crosshair;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%,rgba(245,166,35,0.07) 0%,transparent 60%),
+    radial-gradient(1px 1px at 20% 30%,rgba(245,166,35,0.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 80% 20%,rgba(0,229,255,0.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 60% 70%,rgba(255,255,255,0.2) 0%,transparent 100%),
+    radial-gradient(1px 1px at 10% 80%,rgba(245,166,35,0.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 90% 60%,rgba(0,229,255,0.25) 0%,transparent 100%);
+}
+
+/* ── PAGE SHELL ─────────────────────────────────────────────────────────────── */
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: nav
+   ════════════════════════════════════════════════════════════════════════════ */
+.nav{
+  padding:16px 32px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(245,166,35,0.1);
+  background:rgba(0,0,8,0.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+}
+.nav__logo{
+  font-family:'Bebas Neue',sans-serif;font-size:22px;
+  letter-spacing:5px;color:var(--amber);text-shadow:0 0 20px rgba(245,166,35,0.3);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: secure-badge
+   ════════════════════════════════════════════════════════════════════════════ */
+.secure-badge{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:2px;color:var(--green);display:flex;align-items:center;gap:6px;
+}
+.secure-badge__dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--green);box-shadow:0 0 8px var(--green);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: overlay  (Stripe loading screen)
+   Modifier: overlay--visible
+   ════════════════════════════════════════════════════════════════════════════ */
+.overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,5,0.95);
+  flex-direction:column;align-items:center;justify-content:center;text-align:center;
+}
+.overlay--visible{display:flex;}
+.overlay__spinner{
+  width:60px;height:60px;border:2px solid rgba(245,166,35,0.2);
+  border-top-color:var(--amber);border-radius:50%;
+  animation:overlay-spin 0.8s linear infinite;margin-bottom:24px;
+  will-change:transform;
+}
+@keyframes overlay-spin{to{transform:rotate(360deg)}}
+.overlay__message{
+  font-family:'Share Tech Mono',monospace;font-size:12px;
+  letter-spacing:2px;color:var(--amber);
+}
+.overlay__error{
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:var(--red);margin-top:12px;display:none;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: checkout  (main two-column layout)
+   ════════════════════════════════════════════════════════════════════════════ */
+.checkout{
+  flex:1;display:grid;grid-template-columns:1fr 1fr;
+  max-width:1100px;margin:0 auto;width:100%;
+  padding:48px 32px;gap:60px;align-items:start;
+}
+.checkout__offer{position:sticky;top:48px;}
+.checkout__form{}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: offer  (left-column hero copy)
+   ════════════════════════════════════════════════════════════════════════════ */
+.offer__eyebrow{
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  letter-spacing:4px;color:var(--amber);margin-bottom:12px;
+}
+.offer__title{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,6vw,72px);
+  line-height:0.9;letter-spacing:2px;margin-bottom:20px;
+}
+.offer__title-highlight{color:var(--amber);}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: price-box
+   ════════════════════════════════════════════════════════════════════════════ */
+.price-box{
+  padding:24px;border:1px solid var(--border);
+  background:rgba(245,166,35,0.04);margin-bottom:24px;
+  position:relative;overflow:hidden;
+}
+.price-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--amber),transparent);
+}
+.price-box__was{
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:var(--muted);text-decoration:line-through;letter-spacing:1px;
+}
+.price-box__amount{
+  font-family:'Bebas Neue',sans-serif;font-size:72px;
+  color:var(--amber);line-height:1;text-shadow:0 0 40px rgba(245,166,35,0.3);
+}
+.price-box__amount::before{
+  content:'$';font-size:36px;vertical-align:top;
+  padding-top:14px;color:var(--amber3);
+}
+.price-box__period{
+  font-family:'Share Tech Mono',monospace;font-size:11px;
+  color:var(--amber2);letter-spacing:2px;margin-top:4px;
+}
+.price-box__fine{font-size:12px;color:var(--muted);margin-top:6px;}
+.price-box__countdown{
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;
+  color:var(--red);margin-top:12px;padding-top:12px;
+  border-top:1px solid rgba(255,45,85,0.2);
+}
+.price-box__countdown-value{color:var(--amber2);font-weight:bold;}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: agents  (list wrapper)
+   ════════════════════════════════════════════════════════════════════════════ */
+.agents{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+.agents__title{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:3px;color:var(--amber);margin-bottom:6px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: agent  (individual agent card)
+   ════════════════════════════════════════════════════════════════════════════ */
+.agent{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 14px;background:var(--card);
+  border:1px solid rgba(245,166,35,0.1);transition:border-color 0.2s;
+}
+.agent:hover{border-color:rgba(245,166,35,0.3);}
+.agent__icon{font-size:18px;color:var(--amber);width:26px;text-align:center;}
+.agent__info{flex:1;}
+.agent__name{
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  letter-spacing:2px;color:var(--amber);
+}
+.agent__role{font-size:11px;color:var(--muted);margin-top:2px;}
+.agent__model{
+  font-family:'Share Tech Mono',monospace;font-size:8px;
+  color:var(--cyan);border:1px solid rgba(0,229,255,0.2);padding:2px 6px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: includes  (feature checklist)
+   ════════════════════════════════════════════════════════════════════════════ */
+.includes{margin-bottom:24px;}
+.includes__title{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:3px;color:var(--amber);margin-bottom:12px;
+}
+.includes__item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:13px;color:rgba(240,238,255,0.7);
+}
+.includes__item:last-child{border-bottom:none;}
+.includes__check{color:var(--green);flex-shrink:0;font-size:14px;margin-top:1px;}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: trust  (trust signal row)
+   ════════════════════════════════════════════════════════════════════════════ */
+.trust{display:flex;gap:16px;flex-wrap:wrap;}
+.trust__item{
+  font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;
+  color:var(--muted);display:flex;align-items:center;gap:5px;
+}
+.trust__icon{color:var(--green);}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: proof  (live activity strip)
+   ════════════════════════════════════════════════════════════════════════════ */
+.proof{
+  margin-top:32px;padding:16px;
+  background:rgba(57,255,110,0.03);border:1px solid rgba(57,255,110,0.1);
+}
+.proof__title{
+  font-family:'Share Tech Mono',monospace;font-size:8px;
+  letter-spacing:3px;color:var(--green);margin-bottom:10px;
+}
+.proof__item{
+  font-size:12px;color:rgba(240,238,255,0.55);
+  padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);
+  display:flex;align-items:center;gap:8px;
+}
+.proof__item:last-child{border-bottom:none;}
+.proof__dot{
+  width:5px;height:5px;border-radius:50%;background:var(--green);
+  flex-shrink:0;animation:proof-blink 2s infinite;will-change:opacity;
+}
+@keyframes proof-blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: steps  (step indicator bar)
+   ════════════════════════════════════════════════════════════════════════════ */
+.steps{display:flex;margin-bottom:32px;}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: step
+   Modifiers: step--active, step--done
+   ════════════════════════════════════════════════════════════════════════════ */
+.step{
+  flex:1;padding:10px 12px;text-align:center;
+  font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;
+  border:1px solid var(--raised);color:var(--muted);
+  background:rgba(12,9,24,0.5);transition:all 0.3s;
+}
+.step--active{border-color:var(--amber);color:var(--amber);background:rgba(245,166,35,0.05);}
+.step--done{border-color:var(--green);color:var(--green);background:rgba(57,255,110,0.05);}
+.step__number{font-family:'Bebas Neue',sans-serif;font-size:20px;display:block;margin-bottom:2px;}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: progress  (animated progress bar)
+   ════════════════════════════════════════════════════════════════════════════ */
+.progress{height:3px;background:rgba(245,166,35,0.15);margin-bottom:20px;}
+.progress__fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--amber3),var(--amber),var(--amber2));
+  transition:width 0.5s ease;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: panel  (multi-step form panel)
+   Modifier: panel--active
+   ════════════════════════════════════════════════════════════════════════════ */
+.panel{display:none;}
+.panel--active{display:block;animation:panel-slide 0.35s ease forwards;will-change:transform,opacity;}
+@keyframes panel-slide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+.panel__title{
+  font-family:'Bebas Neue',sans-serif;font-size:28px;
+  letter-spacing:2px;margin-bottom:6px;
+}
+.panel__description{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.7;}
+.panel__actions{display:flex;gap:12px;margin-top:8px;}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: field  (form field unit)
+   Modifier: field--pair  (two-column grid of fields)
+   ════════════════════════════════════════════════════════════════════════════ */
+.field{margin-bottom:16px;}
+.field--pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:0;}
+.field__label{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:2px;color:var(--amber);display:block;margin-bottom:6px;
+}
+.field__input{
+  width:100%;background:var(--card);border:1px solid rgba(245,166,35,0.2);
+  color:var(--white);font-family:'Barlow',sans-serif;font-size:14px;
+  padding:13px 16px;outline:none;transition:all 0.2s;
+}
+.field__input:focus{
+  border-color:var(--amber);
+  box-shadow:0 0 0 1px rgba(245,166,35,0.15),0 0 20px rgba(245,166,35,0.05);
+}
+.field__input::placeholder{color:var(--muted);}
+.field__input--error{border-color:var(--red);}
+.field__input--error + .field__error{display:block;}
+.field__hint{font-size:11px;color:var(--muted);margin-top:5px;}
+.field__error{font-size:11px;color:var(--red);margin-top:5px;display:none;}
+
+/* SELECT variant */
+select.field__input{
+  cursor:crosshair;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M6 8L0 0h12z' fill='%23F5A623'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;
+}
+
+/* REFERRAL inline input — no right border when paired with its button */
+.field__input--no-right-border{border-right:none;}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: referral  (referral code input + apply button)
+   ════════════════════════════════════════════════════════════════════════════ */
+.referral{display:flex;}
+.referral__btn{
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;
+  background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);
+  border-left:none;color:var(--amber);padding:0 16px;cursor:crosshair;
+  transition:all 0.2s;white-space:nowrap;
+}
+.referral__btn:hover{background:var(--amber);color:#000;}
+.referral__message{
+  font-family:'Share Tech Mono',monospace;font-size:10px;
+  color:var(--green);margin-top:6px;display:none;
+}
+.referral__message--visible{display:block;}
+.referral__message--invalid{color:var(--red);}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: order  (order summary box)
+   ════════════════════════════════════════════════════════════════════════════ */
+.order{
+  background:var(--card);border:1px solid var(--border);
+  padding:20px;margin-bottom:20px;
+}
+.order__heading{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:3px;color:var(--amber);margin-bottom:14px;
+}
+.order__row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;
+}
+.order__row:last-child{border-bottom:none;}
+.order__row--discount{color:var(--green);}
+.order__label{color:var(--muted);}
+.order__value{color:var(--white);}
+.order__value--accent{color:var(--amber);}
+.order__value--discount{color:var(--green);}
+.order__total{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0 0;margin-top:4px;
+}
+.order__total-label{
+  font-family:'Bebas Neue',sans-serif;font-size:18px;
+  letter-spacing:2px;color:var(--white);
+}
+.order__total-value{
+  font-family:'Bebas Neue',sans-serif;font-size:36px;
+  color:var(--amber);text-shadow:0 0 20px rgba(245,166,35,0.3);
+}
+.order__total-value::before{
+  content:'$';font-size:18px;vertical-align:top;padding-top:8px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: profile  (confirmed user summary in step 3)
+   ════════════════════════════════════════════════════════════════════════════ */
+.profile{
+  padding:14px;background:rgba(245,166,35,0.04);
+  border:1px solid rgba(245,166,35,0.15);
+  margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.8;
+}
+.profile__heading{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:2px;color:var(--amber);
+}
+.profile__value{color:var(--white);}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BLOCK: btn
+   Modifiers: btn--primary, btn--back
+   ════════════════════════════════════════════════════════════════════════════ */
+.btn--primary{
+  width:100%;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;
+  letter-spacing:4px;text-transform:uppercase;
+  background:var(--amber);color:#000;border:none;
+  padding:18px;cursor:crosshair;overflow:hidden;transition:all 0.25s;
+}
+.btn--primary:hover{background:var(--amber2);box-shadow:0 0 40px rgba(245,166,35,0.4);}
+.btn--primary:disabled{opacity:0.5;cursor:not-allowed;}
+.btn__inner{display:flex;align-items:center;justify-content:center;gap:10px;}
+.btn__arrow{transition:transform 0.2s;}
+.btn--primary:hover .btn__arrow{transform:translateX(4px);}
+.btn--back{
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;
+  color:var(--muted);background:none;border:none;cursor:crosshair;
+  padding:0;display:flex;align-items:center;gap:6px;transition:color 0.2s;
+  white-space:nowrap;
+}
+.btn--back:hover{color:var(--white);}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   UTILITY
+   ════════════════════════════════════════════════════════════════════════════ */
+.order__legal{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  color:var(--muted);text-align:center;margin-top:10px;
+  letter-spacing:1px;line-height:1.8;
+}
+
+/* ── Inline-style replacements (BEM modifiers) ─────────────────────────────── */
+.progress__fill--init{width:33%;}
+.btn--primary--grow{flex:1;}
+.order__row--hidden{display:none;}
+.panel__actions--mt{margin-top:12px;}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════════════════════════════════════════════════ */
+@media(max-width:768px){
+  .checkout{grid-template-columns:1fr;padding:24px 16px;gap:32px;}
+  .checkout__offer{position:static;}
+  .field--pair{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── BLOCK: nav ──────────────────────────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="nav__logo">⬡ DIRT</div>
+    <div class="secure-badge">
+      <div class="secure-badge__dot"></div>
+      SECURED BY STRIPE · SSL ENCRYPTED
+    </div>
+  </nav>
+
+  <!-- ── BLOCK: overlay ─────────────────────────────────────────────────────── -->
+  <div class="overlay" id="stripe-overlay">
+    <div class="overlay__spinner"></div>
+    <div class="overlay__message" id="stripe-overlay-msg">SECURING YOUR SESSION...</div>
+    <div class="overlay__error" id="stripe-error"></div>
+  </div>
+
+  <!-- ── BLOCK: checkout ────────────────────────────────────────────────────── -->
+  <main class="checkout" id="checkout-main">
+
+    <!-- checkout__offer ──────────────────────────────────────────────────────── -->
+    <div class="checkout__offer">
+
+      <div class="offer__eyebrow">⬡ OPERATION SHELL BREAK · LIMITED LAUNCH</div>
+      <div class="offer__title">
+        BUST<br/>OUT<br/><span class="offer__title-highlight">YOUR<br/>SHELL.</span>
+      </div>
+
+      <!-- BLOCK: price-box -->
+      <div class="price-box">
+        <div class="price-box__was">Standard: $49/mo (What Polsia charges)</div>
+        <div class="price-box__amount">10</div>
+        <div class="price-box__period">YOUR FIRST 30 DAYS · FULL PLATFORM ACCESS</div>
+        <div class="price-box__fine">No revenue share. No hidden fees. Cancel anytime.</div>
+      </div>
+
+      <!-- BLOCK: agents -->
+      <div class="agents">
+        <div class="agents__title">YOUR 6-AGENT TEAM</div>
+
+        <div class="agent">
+          <div class="agent__icon">◈</div>
+          <div class="agent__info">
+            <div class="agent__name">APEX</div>
+            <div class="agent__role">CEO · Strategic Orchestrator</div>
+          </div>
+          <div class="agent__model">claude-opus-4-7</div>
+        </div>
+
+        <div class="agent">
+          <div class="agent__icon">◎</div>
+          <div class="agent__info">
+            <div class="agent__name">SCOUT</div>
+            <div class="agent__role">Research & Intelligence</div>
+          </div>
+          <div class="agent__model">claude-sonnet-4-6</div>
+        </div>
+
+        <div class="agent">
+          <div class="agent__icon">◐</div>
+          <div class="agent__info">
+            <div class="agent__name">SIGNAL</div>
+            <div class="agent__role">Marketing & Content</div>
+          </div>
+          <div class="agent__model">claude-sonnet-4-6</div>
+        </div>
+
+        <div class="agent">
+          <div class="agent__icon">⬡</div>
+          <div class="agent__info">
+            <div class="agent__name">FORGE</div>
+            <div class="agent__role">Dev & Product Engineering</div>
+          </div>
+          <div class="agent__model">claude-sonnet-4-6</div>
+        </div>
+
+        <div class="agent">
+          <div class="agent__icon">◆</div>
+          <div class="agent__info">
+            <div class="agent__name">VECTOR</div>
+            <div class="agent__role">Sales & Lead Generation</div>
+          </div>
+          <div class="agent__model">claude-sonnet-4-6</div>
+        </div>
+
+        <div class="agent">
+          <div class="agent__icon">◉</div>
+          <div class="agent__info">
+            <div class="agent__name">RELAY</div>
+            <div class="agent__role">Operations & Automation</div>
+          </div>
+          <div class="agent__model">claude-sonnet-4-6</div>
+        </div>
+      </div>
+
+      <!-- BLOCK: includes -->
+      <div class="includes">
+        <div class="includes__title">WHAT'S INCLUDED</div>
+        <div class="includes__item"><span class="includes__check">✓</span>Plan→Execute→Reflect 3-stage pipeline</div>
+        <div class="includes__item"><span class="includes__check">✓</span>LLM-as-judge quality scoring (0–100)</div>
+        <div class="includes__item"><span class="includes__check">✓</span>Auto-refinement on low-quality outputs</div>
+        <div class="includes__item"><span class="includes__check">✓</span>Persistent pinned memory architecture</div>
+        <div class="includes__item"><span class="includes__check">✓</span>Daily autonomous cycle (all 6 agents)</div>
+        <div class="includes__item"><span class="includes__check">✓</span>Full live activity transparency feed</div>
+        <div class="includes__item"><span class="includes__check">✓</span>45 task credits (no waste policy)</div>
+        <div class="includes__item"><span class="includes__check">✓</span>Semantic intent routing to right agent</div>
+      </div>
+
+      <!-- BLOCK: trust -->
+      <div class="trust">
+        <div class="trust__item"><span class="trust__icon">✓</span> Stripe Secured</div>
+        <div class="trust__item"><span class="trust__icon">✓</span> SSL Encrypted</div>
+        <div class="trust__item"><span class="trust__icon">✓</span> No Rev Share</div>
+        <div class="trust__item"><span class="trust__icon">✓</span> Cancel Anytime</div>
+      </div>
+
+      <!-- BLOCK: proof -->
+      <div class="proof">
+        <div class="proof__title">🔴 LIVE ACTIVITY</div>
+        <div class="proof__item"><div class="proof__dot"></div>Jordan T. from Austin just activated DIRT</div>
+        <div class="proof__item"><div class="proof__dot"></div>Marcus R. — APEX completed overnight cycle</div>
+        <div class="proof__item"><div class="proof__dot"></div>Priya S. — SIGNAL wrote 30 LinkedIn posts</div>
+        <div class="proof__item"><div class="proof__dot"></div>847 founders in Operation Shell Break</div>
+      </div>
+
+    </div>
+    <!-- /checkout__offer -->
+
+    <!-- checkout__form ───────────────────────────────────────────────────────── -->
+    <div class="checkout__form">
+
+      <!-- BLOCK: steps -->
+      <div class="steps">
+        <div class="step step--active" id="step-1">
+          <span class="step__number">01</span>YOUR INFO
+        </div>
+        <div class="step" id="step-2">
+          <span class="step__number">02</span>COMPANY
+        </div>
+        <div class="step" id="step-3">
+          <span class="step__number">03</span>PAYMENT
+        </div>
+      </div>
+
+      <!-- BLOCK: progress -->
+      <div class="progress">
+        <div class="progress__fill progress__fill--init" id="progress-fill"></div>
+      </div>
+
+      <!-- ── BLOCK: panel — Step 1: Personal Info ─────────────────────────── -->
+      <div class="panel panel--active" id="panel-1">
+        <div class="panel__title">Your Info</div>
+        <div class="panel__description">We'll send your DIRT access credentials and receipt here.</div>
+
+        <div class="field--pair">
+          <div class="field">
+            <label class="field__label" for="first-name">FIRST NAME</label>
+            <input class="field__input" id="first-name" type="text" placeholder="Sebastian" autocomplete="given-name"/>
+            <div class="field__error">Required</div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="last-name">LAST NAME</label>
+            <input class="field__input" id="last-name" type="text" placeholder="Smith" autocomplete="family-name"/>
+            <div class="field__error">Required</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="email">EMAIL ADDRESS</label>
+          <input class="field__input" id="email" type="email" placeholder="you@company.com" autocomplete="email"/>
+          <div class="field__hint">Your DIRT credentials will be sent here</div>
+          <div class="field__error">Valid email required</div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="referral">REFERRAL CODE (OPTIONAL)</label>
+          <div class="referral">
+            <input class="field__input field__input--no-right-border" id="referral" type="text" placeholder="DIRT-SHELLBREAK-2026"/>
+            <button class="referral__btn" type="button" onclick="applyReferral()">APPLY</button>
+          </div>
+          <div class="referral__message" id="ref-success">✓ Code applied — $5 discount unlocked!</div>
+        </div>
+
+        <button class="btn--primary" type="button" onclick="goStep(2)">
+          <div class="btn__inner">CONTINUE <span class="btn__arrow">→</span></div>
+        </button>
+      </div>
+
+      <!-- ── BLOCK: panel — Step 2: Company Info ──────────────────────────── -->
+      <div class="panel" id="panel-2">
+        <div class="panel__title">Your Company</div>
+        <div class="panel__description">Your agents will use this context for every task they execute. Be specific — it makes outputs dramatically better.</div>
+
+        <div class="field">
+          <label class="field__label" for="company-name">COMPANY NAME</label>
+          <input class="field__input" id="company-name" type="text" placeholder="e.g. NexGen Dental AI"/>
+          <div class="field__error">Required</div>
+        </div>
+
+        <div class="field--pair">
+          <div class="field">
+            <label class="field__label" for="industry">INDUSTRY</label>
+            <select class="field__input" id="industry">
+              <option value="">Select industry...</option>
+              <option>Healthcare / Med Spa</option>
+              <option>SaaS / Software</option>
+              <option>E-Commerce / DTC</option>
+              <option>Real Estate</option>
+              <option>Finance / Fintech</option>
+              <option>Marketing Agency</option>
+              <option>Consulting</option>
+              <option>Crypto / Web3</option>
+              <option>Content / Creator</option>
+              <option>Legal Services</option>
+              <option>Other</option>
+            </select>
+            <div class="field__error">Required</div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="stage">COMPANY STAGE</label>
+            <select class="field__input" id="stage">
+              <option value="">Select stage...</option>
+              <option>Idea / Pre-revenue</option>
+              <option>$0–$1K MRR</option>
+              <option>$1K–$10K MRR</option>
+              <option>$10K–$50K MRR</option>
+              <option>$50K+ MRR</option>
+            </select>
+            <div class="field__error">Required</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="mission">COMPANY MISSION (1–2 sentences)</label>
+          <textarea class="field__input" id="mission" rows="3" placeholder="e.g. We help dental offices recover missed-call revenue with AI automation."></textarea>
+          <div class="field__hint">The more specific, the better your agents perform from day one</div>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="biggest-goal">BIGGEST 30-DAY GOAL</label>
+          <select class="field__input" id="biggest-goal">
+            <option value="">What do you need most right now?</option>
+            <option>Close my first paying client</option>
+            <option>Launch my product / MVP</option>
+            <option>Scale marketing content</option>
+            <option>Build outreach pipeline</option>
+            <option>Automate operations</option>
+            <option>Research market & competitors</option>
+            <option>Raise funding / pitch investors</option>
+          </select>
+        </div>
+
+        <div class="panel__actions">
+          <button class="btn--back" type="button" onclick="goStep(1)">← BACK</button>
+          <button class="btn--primary btn--primary--grow" type="button" onclick="goStep(3)">
+            <div class="btn__inner">REVIEW ORDER <span class="btn__arrow">→</span></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── BLOCK: panel — Step 3: Review & Pay ──────────────────────────── -->
+      <div class="panel" id="panel-3">
+        <div class="panel__title">Review & Pay</div>
+        <div class="panel__description">Confirm your order. Payment is processed securely by Stripe.</div>
+
+        <!-- BLOCK: order -->
+        <div class="order">
+          <div class="order__heading">ORDER SUMMARY</div>
+
+          <div class="order__row">
+            <span class="order__label">Product</span>
+            <span class="order__value">DIRT — Shell Break · 30 Days</span>
+          </div>
+          <div class="order__row">
+            <span class="order__label">Agents</span>
+            <span class="order__value">6 Autonomous Agents</span>
+          </div>
+          <div class="order__row">
+            <span class="order__label">Primary Model</span>
+            <span class="order__value order__value--accent">claude-opus-4-7</span>
+          </div>
+          <div class="order__row">
+            <span class="order__label">Credits</span>
+            <span class="order__value">45 Task Credits</span>
+          </div>
+          <div class="order__row">
+            <span class="order__label">Daily Cycle</span>
+            <span class="order__value">All 6 agents, every day</span>
+          </div>
+          <div class="order__row order__row--discount order__row--hidden" id="discount-row">
+            <span class="order__label">Referral Discount</span>
+            <span class="order__value order__value--discount">−$5.00</span>
+          </div>
+          <div class="order__row">
+            <span class="order__label">Access Period</span>
+            <span class="order__value">30 Days Full Access</span>
+          </div>
+          <div class="order__total">
+            <div class="order__total-label">TODAY'S TOTAL</div>
+            <div class="order__total-value" id="order-total">10</div>
+          </div>
+        </div>
+
+        <!-- BLOCK: profile (populated by JS) -->
+        <div class="profile" id="confirm-summary">Loading order details...</div>
+
+        <button class="btn--primary" id="pay-btn" type="button" onclick="completePurchase()">
+          <div class="btn__inner">
+            🔒 PAY $10 · BUST OUT MY SHELL <span class="btn__arrow">→</span>
+          </div>
+        </button>
+
+        <div class="order__legal">
+          SECURED BY STRIPE · 256-BIT SSL · NO REVENUE SHARE · CANCEL ANYTIME
+        </div>
+
+        <div class="panel__actions panel__actions--mt">
+          <button class="btn--back" type="button" onclick="goStep(2)">← BACK</button>
+        </div>
+      </div>
+
+    </div>
+    <!-- /checkout__form -->
+
+  </main>
+  <!-- /checkout -->
+
+</div>
+<!-- /page -->
+
+<script>
+let currentStep = 1;
+let hasReferral = false;
+let formData = {};
+
+// ── STEP NAVIGATION ───────────────────────────────────────────────────────────
+function goStep(step) {
+  if (step > currentStep && !validateStep(currentStep)) return;
+  collectData();
+
+  // Swap panels
+  document.getElementById(`panel-${currentStep}`).classList.remove('panel--active');
+  document.getElementById(`panel-${step}`).classList.add('panel--active');
+
+  // Update step indicators with BEM modifiers
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById(`step-${i}`);
+    el.className = 'step'
+      + (i === step ? ' step--active' : '')
+      + (i < step  ? ' step--done'   : '');
+  }
+
+  document.getElementById('progress-fill').style.width = (step / 3 * 100) + '%';
+  currentStep = step;
+
+  if (step === 3) populateSummary();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── VALIDATION ────────────────────────────────────────────────────────────────
+function validateStep(step) {
+  let valid = true;
+  const setError = (el, hasError) => {
+    el.classList.toggle('field__input--error', hasError);
+    if (hasError) valid = false;
+  };
+
+  if (step === 1) {
+    const firstName = document.getElementById('first-name');
+    const lastName  = document.getElementById('last-name');
+    const email     = document.getElementById('email');
+    setError(firstName, !firstName.value.trim());
+    setError(lastName,  !lastName.value.trim());
+    setError(email, !email.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value));
+  }
+  if (step === 2) {
+    const cn  = document.getElementById('company-name');
+    const ind = document.getElementById('industry');
+    const st  = document.getElementById('stage');
+    setError(cn,  !cn.value.trim());
+    setError(ind, !ind.value);
+    setError(st,  !st.value);
+  }
+  return valid;
+}
+
+// ── COLLECT DATA ─────────────────────────────────────────────────────────────
+function collectData() {
+  formData = {
+    firstName:   document.getElementById('first-name')?.value   || '',
+    lastName:    document.getElementById('last-name')?.value    || '',
+    email:       document.getElementById('email')?.value        || '',
+    referral:    document.getElementById('referral')?.value     || '',
+    companyName: document.getElementById('company-name')?.value || '',
+    industry:    document.getElementById('industry')?.value     || '',
+    stage:       document.getElementById('stage')?.value        || '',
+    mission:     document.getElementById('mission')?.value      || '',
+    goal:        document.getElementById('biggest-goal')?.value || '',
+    hasReferral,
+  };
+}
+
+// ── REFERRAL ─────────────────────────────────────────────────────────────────
+function applyReferral() {
+  const code = document.getElementById('referral').value.trim().toUpperCase();
+  const validCodes = ['DIRT-SHELLBREAK-2026', 'SHELLBREAK', 'DIRT10', 'BREAK'];
+  const msgEl = document.getElementById('ref-success');
+
+  if (validCodes.includes(code)) {
+    hasReferral = true;
+    msgEl.textContent = '✓ Code applied — $5 discount unlocked!';
+    msgEl.classList.remove('referral__message--invalid');
+    msgEl.classList.add('referral__message--visible');
+    document.getElementById('discount-row').classList.remove('order__row--hidden');
+    document.getElementById('order-total').textContent = '5';
+    document.getElementById('pay-btn').querySelector('.btn__inner').innerHTML =
+      '🔒 PAY $5 · REFERRAL APPLIED <span class="btn__arrow">→</span>';
+  } else {
+    msgEl.textContent = '✗ Invalid code — try DIRT-SHELLBREAK-2026';
+    msgEl.classList.add('referral__message--visible', 'referral__message--invalid');
+  }
+}
+
+// ── POPULATE STEP 3 SUMMARY ───────────────────────────────────────────────────
+function populateSummary() {
+  collectData();
+  const el = document.getElementById('confirm-summary');
+
+  // Build via DOM — no innerHTML with user data to prevent XSS
+  el.innerHTML = '';
+  const heading = document.createElement('span');
+  heading.className = 'profile__heading';
+  heading.textContent = 'YOUR PROFILE';
+  el.appendChild(heading);
+
+  const rows = [
+    ['Name',     `${formData.firstName} ${formData.lastName}`],
+    ['Email',    formData.email],
+    ['Company',  formData.companyName],
+    ['Industry', formData.industry],
+    ['Stage',    formData.stage],
+    ...(formData.goal ? [['Goal', formData.goal]] : []),
+  ];
+  rows.forEach(([label, value]) => {
+    el.appendChild(document.createElement('br'));
+    el.appendChild(document.createTextNode(`${label}: `));
+    const span = document.createElement('span');
+    span.className = 'profile__value';
+    span.textContent = value;
+    el.appendChild(span);
+  });
+
+  if (hasReferral) {
+    document.getElementById('discount-row').classList.remove('order__row--hidden');
+    document.getElementById('order-total').textContent = '5';
+  }
+}
+
+// ── COMPLETE PURCHASE → POST to backend → redirect to Stripe ─────────────────
+async function completePurchase() {
+  collectData();
+
+  const overlay = document.getElementById('stripe-overlay');
+  const msgEl   = document.getElementById('stripe-overlay-msg');
+  const errorEl = document.getElementById('stripe-error');
+  const payBtn  = document.getElementById('pay-btn');
+
+  payBtn.disabled = true;
+  overlay.classList.add('overlay--visible');
+  errorEl.style.display = 'none';
+
+  const msgs = [
+    'SECURING YOUR SESSION...',
+    'ENCRYPTING CONNECTION...',
+    'CREATING CHECKOUT...',
+    'ROUTING TO STRIPE...',
+  ];
+  let mi = 0;
+  const interval = setInterval(() => {
+    mi = (mi + 1) % msgs.length;
+    msgEl.textContent = msgs[mi];
+  }, 600);
+
+  try {
+    const res  = await fetch('/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+    const data = await res.json();
+    clearInterval(interval);
+
+    if (!res.ok || !data.url) throw new Error(data.error || 'Could not create checkout session');
+
+    msgEl.textContent = 'LAUNCHING STRIPE...';
+    window.location.href = data.url;
+
+  } catch (err) {
+    clearInterval(interval);
+    overlay.classList.remove('overlay--visible');
+    payBtn.disabled = false;
+    errorEl.textContent = '⚠ ' + err.message;
+    errorEl.style.display = 'block';
+    console.error(err);
+  }
+}
+
+// ── LIVE COUNTDOWN (shared key with campaign page via localStorage) ───────────
+const STORAGE_KEY = 'dirt_launch_end';
+let END;
+const stored = localStorage.getItem(STORAGE_KEY);
+if (stored) {
+  END = new Date(parseInt(stored, 10));
+} else {
+  END = new Date();
+  END.setDate(END.getDate() + 7);
+  END.setHours(23, 59, 59, 0);
+  localStorage.setItem(STORAGE_KEY, END.getTime().toString());
+}
+
+function countdown() {
+  const diff = Math.max(0, END - new Date());
+  const fmt  = n => String(n).padStart(2, '0');
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  const el = document.getElementById('countdown-mini');
+  if (el) el.textContent = `${fmt(d)}d ${fmt(h)}h ${fmt(m)}m ${fmt(s)}s`;
+}
+
+// Inject countdown into price-box via proper BEM classes
+const priceBox = document.querySelector('.price-box');
+if (priceBox) {
+  const cd = document.createElement('div');
+  cd.className = 'price-box__countdown';
+  cd.innerHTML = '⏰ OFFER EXPIRES: <span class="price-box__countdown-value" id="countdown-mini"></span>';
+  priceBox.appendChild(cd);
+}
+countdown();
+setInterval(countdown, 1000);
+
+// ── INPUT FOCUS ANIMATIONS ────────────────────────────────────────────────────
+document.querySelectorAll('.field__input').forEach(input => {
+  input.addEventListener('input', function () {
+    if (this.classList.contains('field__input--error') && this.value.trim()) {
+      this.classList.remove('field__input--error');
+    }
+  });
+  input.addEventListener('focus', function () {
+    const lbl = this.closest('.field, .referral')?.querySelector('.field__label');
+    if (lbl) lbl.style.color = 'var(--amber2)';
+  });
+  input.addEventListener('blur', function () {
+    const lbl = this.closest('.field, .referral')?.querySelector('.field__label');
+    if (lbl) lbl.style.color = 'var(--amber)';
+  });
+});
+</script>
+</body>
+</html>
