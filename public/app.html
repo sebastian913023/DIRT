@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DIRT — Command Center</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --void:#000008;--card:#0C0918;--raised:#13102A;--border:rgba(245,166,35,0.15);
+  --amber:#F5A623;--amber2:#FFD27A;--amber3:#C47B10;
+  --green:#39FF6E;--red:#FF2D55;--cyan:#00E5FF;
+  --white:#F0EEFF;--muted:#6B6490;
+  --sidebar:220px;
+}
+html,body,#root{height:100%;background:var(--void);color:var(--white);font-family:'Barlow',sans-serif;overflow:hidden;}
+a{color:var(--amber);text-decoration:none;}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:rgba(0,0,5,0.98);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sidebar__logo{padding:20px 20px 16px;border-bottom:1px solid var(--border);}
+.sidebar__logo-mark{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:5px;color:var(--amber);}
+.sidebar__logo-tag{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);margin-top:2px;}
+.sidebar__nav{flex:1;padding:16px 0;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;
+  color:var(--muted);transition:all 0.15s;border-left:2px solid transparent;}
+.nav-item:hover{color:var(--white);background:rgba(245,166,35,0.04);}
+.nav-item.active{color:var(--amber);border-left-color:var(--amber);background:rgba(245,166,35,0.06);}
+.nav-item__icon{font-size:16px;width:20px;text-align:center;}
+.nav-item__badge{margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:9px;
+  padding:2px 6px;background:rgba(245,166,35,0.15);color:var(--amber);border-radius:2px;}
+.sidebar__footer{padding:16px 20px;border-top:1px solid var(--border);}
+.credits-bar{margin-bottom:12px;}
+.credits-bar__label{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:6px;display:flex;justify-content:space-between;}
+.credits-bar__track{height:3px;background:rgba(245,166,35,0.15);border-radius:2px;}
+.credits-bar__fill{height:100%;background:var(--amber);border-radius:2px;transition:width 0.5s;}
+.user-chip{display:flex;align-items:center;gap:8px;}
+.user-chip__avatar{width:28px;height:28px;background:rgba(245,166,35,0.15);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--amber);}
+.user-chip__info{flex:1;overflow:hidden;}
+.user-chip__name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-chip__email{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.btn-logout{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;
+  background:none;border:1px solid rgba(255,45,85,0.2);color:var(--red);
+  padding:3px 8px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.btn-logout:hover{background:var(--red);color:#000;}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.main-header{padding:20px 28px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+  background:rgba(0,0,5,0.9);position:sticky;top:0;z-index:5;}
+.main-header__title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;}
+.main-header__sub{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:2px;}
+.main-content{padding:28px;flex:1;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);padding:20px;position:relative;margin-bottom:16px;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.card__label{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--amber);margin-bottom:8px;}
+.card__title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:4px;}
+.card__body{font-size:13px;color:rgba(240,238,255,0.65);line-height:1.8;}
+
+/* ── STATS GRID ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.stat{background:var(--card);border:1px solid var(--border);padding:16px;position:relative;}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.stat__label{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:6px;}
+.stat__value{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;}
+.stat__value--green{color:var(--green);}
+.stat__value--amber{color:var(--amber);}
+.stat__value--cyan{color:var(--cyan);}
+
+/* ── AGENT GRID ── */
+.agent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+.agent-card{background:var(--card);border:1px solid var(--border);padding:14px;transition:border-color 0.2s;}
+.agent-card:hover{border-color:rgba(245,166,35,0.4);}
+.agent-card.running{border-color:var(--amber);animation:pulse-border 1.5s infinite;}
+.agent-card.complete{border-color:var(--green);}
+.agent-card.failed{border-color:var(--red);}
+@keyframes pulse-border{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0.3)}50%{box-shadow:0 0 0 4px rgba(245,166,35,0)}}
+.agent-card__header{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.agent-card__icon{font-size:20px;color:var(--amber);}
+.agent-card__name{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--amber);}
+.agent-card__role{font-size:11px;color:var(--muted);}
+.agent-card__status{margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;padding:2px 6px;}
+.status-idle{color:var(--muted);border:1px solid rgba(107,100,144,0.3);}
+.status-running{color:var(--amber);border:1px solid rgba(245,166,35,0.3);animation:blink-text 1s infinite;}
+.status-complete{color:var(--green);border:1px solid rgba(57,255,110,0.3);}
+.status-failed{color:var(--red);border:1px solid rgba(255,45,85,0.3);}
+.status-queued{color:var(--cyan);border:1px solid rgba(0,229,255,0.3);}
+@keyframes blink-text{0%,100%{opacity:1}50%{opacity:0.5}}
+.agent-card__score{font-family:'Share Tech Mono',monospace;font-size:10px;margin-top:4px;}
+.score-high{color:var(--green);}
+.score-med{color:var(--amber);}
+.score-low{color:var(--red);}
+
+/* ── PLAN VIEW ── */
+.plan-theme{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--amber);margin-bottom:16px;}
+.objectives{margin-bottom:20px;}
+.objective{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;color:rgba(240,238,255,0.75);}
+.objective:last-child{border-bottom:none;}
+.objective__num{font-family:'Bebas Neue',sans-serif;font-size:18px;color:rgba(245,166,35,0.4);width:24px;flex-shrink:0;}
+.agent-assignments{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.assignment{background:rgba(245,166,35,0.03);border:1px solid var(--border);padding:12px;}
+.assignment__agent{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--amber);margin-bottom:4px;}
+.assignment__focus{font-size:12px;color:rgba(240,238,255,0.65);line-height:1.6;}
+.assignment__deliverables{margin-top:8px;}
+.deliverable{font-size:11px;color:var(--muted);display:flex;gap:6px;align-items:flex-start;padding:2px 0;}
+.deliverable::before{content:'→';color:var(--amber3);}
+
+/* ── BRIEF VIEW ── */
+.task-list{display:flex;flex-direction:column;gap:8px;}
+.task-item{background:var(--card);border:1px solid var(--border);padding:14px;display:flex;gap:12px;align-items:flex-start;}
+.task-item.running{border-color:var(--amber);}
+.task-item.complete{border-color:var(--green);}
+.task-item.failed{border-color:var(--red);}
+.task-item__icon{font-size:20px;color:var(--amber);flex-shrink:0;}
+.task-item__body{flex:1;}
+.task-item__agent{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--amber);margin-bottom:3px;}
+.task-item__desc{font-size:13px;color:var(--white);line-height:1.5;}
+.task-item__type{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;}
+.task-item__status{margin-left:auto;flex-shrink:0;}
+.task-item__score{font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:700;}
+
+/* ── ACTIVITY FEED ── */
+.feed{display:flex;flex-direction:column;gap:0;}
+.feed-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04);align-items:flex-start;}
+.feed-item:last-child{border-bottom:none;}
+.feed-item__dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.dot-apex{background:var(--amber);}
+.dot-scout{background:var(--cyan);}
+.dot-signal{background:#FF6B9D;}
+.dot-forge{background:#7C6EFA;}
+.dot-vector{background:var(--green);}
+.dot-relay{background:#FF9F43;}
+.dot-user{background:var(--muted);}
+.feed-item__body{flex:1;}
+.feed-item__agent{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--amber);margin-bottom:2px;}
+.feed-item__msg{font-size:12px;color:rgba(240,238,255,0.75);line-height:1.5;}
+.feed-item__time{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);flex-shrink:0;margin-top:3px;}
+
+/* ── OUTPUTS ── */
+.outputs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+.output-card{background:var(--card);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all 0.2s;}
+.output-card:hover{border-color:rgba(245,166,35,0.4);transform:translateY(-2px);}
+.output-card__header{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:8px;}
+.output-card__icon{font-size:16px;color:var(--amber);}
+.output-card__agent{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--amber);}
+.output-card__date{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto;}
+.output-card__score{font-family:'Share Tech Mono',monospace;font-size:10px;font-weight:700;}
+.output-card__body{padding:12px 14px;}
+.output-card__task{font-size:12px;font-weight:500;margin-bottom:6px;}
+.output-card__preview{font-size:11px;color:var(--muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* ── OUTPUT MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,5,0.92);z-index:100;
+  display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto;}
+.modal{background:var(--card);border:1px solid var(--border);width:100%;max-width:760px;position:relative;}
+.modal__header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.modal__close{margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:9px;
+  background:none;border:1px solid var(--border);color:var(--muted);padding:4px 10px;cursor:pointer;transition:all 0.2s;}
+.modal__close:hover{color:var(--white);border-color:var(--white);}
+.modal__body{padding:20px;max-height:70vh;overflow-y:auto;}
+.modal__output{font-size:13px;line-height:1.9;color:rgba(240,238,255,0.85);white-space:pre-wrap;font-family:'Barlow',sans-serif;}
+.modal__copy{margin:16px 20px;display:flex;justify-content:flex-end;}
+.btn-copy{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;
+  background:var(--amber);color:#000;border:none;padding:8px 20px;cursor:pointer;transition:all 0.2s;}
+.btn-copy:hover{background:var(--amber2);}
+
+/* ── BUTTONS ── */
+.btn{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;border:none;cursor:pointer;padding:12px 28px;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+.btn--primary{background:var(--amber);color:#000;}
+.btn--primary:hover{background:var(--amber2);box-shadow:0 0 30px rgba(245,166,35,0.3);}
+.btn--primary:disabled{opacity:0.4;cursor:not-allowed;}
+.btn--secondary{background:transparent;color:var(--white);border:1px solid rgba(255,255,255,0.2);}
+.btn--secondary:hover{border-color:var(--amber);color:var(--amber);}
+.btn--danger{background:transparent;color:var(--red);border:1px solid rgba(255,45,85,0.3);}
+.btn--green{background:var(--green);color:#000;}
+.btn--green:hover{background:#5FFFAA;}
+
+/* ── LOGIN ── */
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--void);}
+.login-card{width:100%;max-width:380px;background:var(--card);border:1px solid var(--border);padding:40px;position:relative;}
+.login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.login__logo{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:8px;color:var(--amber);margin-bottom:4px;}
+.login__tag{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:32px;}
+.login__label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--amber);display:block;margin-bottom:6px;}
+.login__input{width:100%;background:var(--raised);border:1px solid var(--border);color:var(--white);
+  font-family:'Barlow',sans-serif;font-size:14px;padding:13px 16px;outline:none;margin-bottom:20px;transition:border-color 0.2s;}
+.login__input:focus{border-color:var(--amber);}
+.login__error{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red);
+  padding:10px;border:1px solid rgba(255,45,85,0.3);margin-bottom:16px;}
+
+/* ── SPINNER ── */
+.spinner{width:20px;height:20px;border:2px solid rgba(245,166,35,0.2);border-top-color:var(--amber);
+  border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-full{display:flex;align-items:center;justify-content:center;height:200px;gap:12px;
+  font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;}
+
+/* ── APEX NOTE ── */
+.apex-note{padding:14px 16px;background:rgba(245,166,35,0.04);border-left:2px solid var(--amber);
+  font-size:13px;color:rgba(240,238,255,0.75);line-height:1.8;margin-bottom:20px;font-style:italic;}
+
+/* ── STATUS BADGE ── */
+.badge{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:4px 10px;display:inline-block;}
+.badge--pending{color:var(--amber);border:1px solid rgba(245,166,35,0.3);background:rgba(245,166,35,0.05);}
+.badge--approved{color:var(--green);border:1px solid rgba(57,255,110,0.3);background:rgba(57,255,110,0.05);}
+.badge--executing{color:var(--cyan);border:1px solid rgba(0,229,255,0.3);background:rgba(0,229,255,0.05);animation:blink-text 1.2s infinite;}
+.badge--complete{color:var(--green);border:1px solid rgba(57,255,110,0.4);}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:48px 24px;}
+.empty__icon{font-size:48px;margin-bottom:16px;opacity:0.4;}
+.empty__title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
+.empty__body{font-size:13px;color:var(--muted);margin-bottom:24px;}
+
+/* ── MOBILE NAV ── */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:rgba(0,0,5,0.98);border-top:1px solid var(--border);
+  display:flex;justify-content:space-around;padding:8px 0;}
+.mobile-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;
+  cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;
+  color:var(--muted);transition:color 0.15s;}
+.mobile-nav-item.active{color:var(--amber);}
+.mobile-nav-item__icon{font-size:18px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .app{flex-direction:column;}
+  .main{overflow-y:auto;padding-bottom:64px;}
+  .mobile-nav{display:flex;}
+  .stats{grid-template-columns:1fr 1fr;}
+  .agent-grid{grid-template-columns:1fr 1fr;}
+  .agent-assignments{grid-template-columns:1fr;}
+  .main-header{padding:14px 16px;}
+  .main-content{padding:16px;}
+}
+@media(max-width:420px){
+  .stats{grid-template-columns:1fr;}
+  .agent-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
+const AGENTS = {
+  APEX:   { icon: '◈', role: 'CEO · Strategic Orchestrator', dotClass: 'dot-apex' },
+  SCOUT:  { icon: '◎', role: 'Research & Intelligence',      dotClass: 'dot-scout' },
+  SIGNAL: { icon: '◐', role: 'Marketing & Content',          dotClass: 'dot-signal' },
+  FORGE:  { icon: '⬡', role: 'Dev & Product Engineering',    dotClass: 'dot-forge' },
+  VECTOR: { icon: '◆', role: 'Sales & Lead Generation',      dotClass: 'dot-vector' },
+  RELAY:  { icon: '◉', role: 'Operations & Automation',      dotClass: 'dot-relay' },
+};
+
+function scoreColor(s) {
+  if (!s) return '';
+  if (s >= 80) return 'score-high';
+  if (s >= 65) return 'score-med';
+  return 'score-low';
+}
+
+function fmtTime(ts) {
+  if (!ts) return '';
+  const d = new Date(typeof ts === 'number' && ts < 1e10 ? ts * 1000 : ts);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// ── API ───────────────────────────────────────────────────────────────────────
+const api = {
+  async get(url) {
+    try {
+      const r = await fetch(url, { credentials: 'include' });
+      if (r.status === 401) return null; // Not logged in — let app show login form
+      if (!r.ok) return null;
+      return r.json();
+    } catch (_) { return null; }
+  },
+  async post(url, body) {
+    try {
+      const r = await fetch(url, {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      return r.json();
+    } catch (e) { return { error: e.message }; }
+  },
+};
+
+// ── LOGIN PAGE ────────────────────────────────────────────────────────────────
+function LoginPage({ onLogin }) {
+  const [email, setEmail]   = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError]   = useState('');
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setLoading(true);
+    setError('');
+    const data = await api.post('/app/api/login', { email: email.trim() });
+    setLoading(false);
+    if (data?.error) { setError(data.error); return; }
+    onLogin(data);
+  }
+
+  return (
+    <div className="login-page">
+      <div className="login-card">
+        <div className="login__logo">⬡ DIRT</div>
+        <div className="login__tag">COMMAND CENTER · AGENT ACCESS</div>
+        {error && <div className="login__error">✗ {error}</div>}
+        <form onSubmit={handleLogin}>
+          <label className="login__label">YOUR EMAIL</label>
+          <input
+            className="login__input"
+            type="email"
+            placeholder="you@company.com"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            autoFocus
+          />
+          <button className="btn btn--primary" type="submit" disabled={loading} style={{width:'100%'}}>
+            {loading ? <><span className="spinner"/> ACCESSING...</> : 'ACCESS COMMAND CENTER →'}
+          </button>
+        </form>
+        <p style={{marginTop:20,fontFamily:"'Share Tech Mono',monospace",fontSize:10,color:'var(--muted)',lineHeight:1.8}}>
+          Use the email you signed up with.<br/>
+          New? <a href="/checkout" style={{color:'var(--amber)'}}>Complete checkout first →</a>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function Dashboard({ user, plan, brief, taskStatuses, activity, outputCount, onNavigate }) {
+  const runningCount  = Object.values(taskStatuses).filter(s => s === 'running').length;
+  const completeCount = Object.values(taskStatuses).filter(s => s === 'complete').length;
+  const today = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+
+  return (
+    <div>
+      <div className="stats">
+        <div className="stat">
+          <div className="stat__label">ACTIVE AGENTS</div>
+          <div className={`stat__value ${runningCount > 0 ? 'stat__value--amber' : 'stat__value--green'}`}>
+            {runningCount > 0 ? runningCount : 6}
+          </div>
+        </div>
+        <div className="stat">
+          <div className="stat__label">TASK CREDITS</div>
+          <div className="stat__value stat__value--cyan">{user.credits}</div>
+        </div>
+        <div className="stat">
+          <div className="stat__label">TODAY COMPLETE</div>
+          <div className="stat__value stat__value--green">{completeCount}</div>
+        </div>
+        <div className="stat">
+          <div className="stat__label">OUTPUTS TOTAL</div>
+          <div className="stat__value stat__value--amber">{outputCount}</div>
+        </div>
+      </div>
+
+      {/* Agent Status Grid */}
+      <div className="card" style={{marginBottom:20}}>
+        <div className="card__label">AGENT STATUS — {today.toUpperCase()}</div>
+        <div className="agent-grid">
+          {Object.entries(AGENTS).filter(([k]) => k !== 'APEX').map(([name, info]) => {
+            const status = taskStatuses[name] || 'idle';
+            return (
+              <div key={name} className={`agent-card ${status}`}>
+                <div className="agent-card__header">
+                  <span className="agent-card__icon">{info.icon}</span>
+                  <div>
+                    <div className="agent-card__name">{name}</div>
+                    <div className="agent-card__role">{info.role}</div>
+                  </div>
+                  <span className={`agent-card__status status-${status}`}>{status.toUpperCase()}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      {!plan && (
+        <div className="card">
+          <div className="card__label">GET STARTED</div>
+          <div className="card__title">Generate Your Weekly Plan</div>
+          <div className="card__body" style={{marginBottom:16}}>
+            APEX will analyse your company and build a strategic plan for all 6 agents.
+          </div>
+          <button className="btn btn--primary" type="button" onClick={() => onNavigate('plan')}>
+            ⬡ GENERATE WEEKLY PLAN
+          </button>
+        </div>
+      )}
+
+      {plan && plan.status === 'pending_approval' && (
+        <div className="card">
+          <div className="card__label">ACTION REQUIRED</div>
+          <div className="card__title">Weekly Plan Ready for Approval</div>
+          <div className="card__body" style={{marginBottom:16}}>
+            APEX has built your plan: <strong style={{color:'var(--amber)'}}>{plan.content?.overall_theme}</strong>
+          </div>
+          <button className="btn btn--green" type="button" onClick={() => onNavigate('plan')}>
+            REVIEW & APPROVE →
+          </button>
+        </div>
+      )}
+
+      {plan && plan.status === 'approved' && !brief && (
+        <div className="card">
+          <div className="card__label">NEXT STEP</div>
+          <div className="card__title">Generate Today's Daily Brief</div>
+          <div className="card__body" style={{marginBottom:16}}>
+            Your weekly plan is approved. Generate today's agent task assignments.
+          </div>
+          <button className="btn btn--primary" type="button" onClick={() => onNavigate('brief')}>
+            ⬡ GENERATE DAILY BRIEF
+          </button>
+        </div>
+      )}
+
+      {/* Recent Activity */}
+      {activity.length > 0 && (
+        <div className="card">
+          <div className="card__label">RECENT ACTIVITY</div>
+          <div className="feed">
+            {activity.slice(0, 5).map((item, i) => {
+              const agentKey = (item.agent_name || 'USER').toUpperCase();
+              const info = AGENTS[agentKey] || { icon: '●', dotClass: 'dot-user' };
+              return (
+                <div key={i} className="feed-item">
+                  <div className={`feed-item__dot ${info.dotClass}`}/>
+                  <div className="feed-item__body">
+                    <div className="feed-item__agent">{agentKey}</div>
+                    <div className="feed-item__msg">{item.message}</div>
+                  </div>
+                  <div className="feed-item__time">{fmtTime(item.timestamp)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── WEEKLY PLAN VIEW ──────────────────────────────────────────────────────────
+function WeeklyPlanView({ user, plan, onPlanUpdate }) {
+  const [loading, setLoading]   = useState(false);
+  const [approving, setApproving] = useState(false);
+  const [error, setError]       = useState('');
+
+  async function generate() {
+    setLoading(true);
+    setError('');
+    const data = await api.post('/app/api/weekly-plan/generate', {});
+    setLoading(false);
+    if (data?.plan) { onPlanUpdate(data.plan); return; }
+    if (data?.error) setError(data.error);
+  }
+
+  async function approve() {
+    setApproving(true);
+    await api.post(`/app/api/weekly-plan/${plan.id}/approve`, {});
+    setApproving(false);
+    onPlanUpdate({ ...plan, status: 'approved' });
+  }
+
+  if (loading) {
+    return (
+      <div className="loading-full">
+        <span className="spinner"/>
+        APEX IS BUILDING YOUR STRATEGIC PLAN...
+      </div>
+    );
+  }
+
+  if (!plan) {
+    return (
+      <div className="empty">
+        <div className="empty__icon">◈</div>
+        <div className="empty__title">No Weekly Plan Yet</div>
+        <div className="empty__body">
+          APEX will analyse your company and build a strategic plan for all 6 agents this week.
+        </div>
+        {error && (
+          <div style={{
+            fontFamily:"'Share Tech Mono',monospace",fontSize:11,color:'var(--red)',
+            border:'1px solid rgba(255,45,85,0.3)',background:'rgba(255,45,85,0.05)',
+            padding:'12px 16px',marginBottom:16,textAlign:'left',lineHeight:1.7,maxWidth:480,margin:'0 auto 16px',
+          }}>
+            ✗ APEX ERROR — {error}
+          </div>
+        )}
+        <button className="btn btn--primary" type="button" onClick={generate}>
+          ⬡ GENERATE MY WEEKLY PLAN
+        </button>
+      </div>
+    );
+  }
+
+  const c = plan.content;
+  const monday = new Date();
+  const day = monday.getDay();
+  monday.setDate(monday.getDate() - day + (day === 0 ? -6 : 1));
+  const weekLabel = monday.toLocaleDateString('en-US', { month:'long', day:'numeric' });
+
+  return (
+    <div>
+      <div className="card">
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+          <div>
+            <div className="card__label">WEEK OF {weekLabel.toUpperCase()}</div>
+            <span className={`badge badge--${plan.status === 'pending_approval' ? 'pending' : 'approved'}`}>
+              {plan.status === 'pending_approval' ? 'PENDING YOUR APPROVAL' : '✓ APPROVED'}
+            </span>
+          </div>
+        </div>
+
+        <div className="plan-theme">{c.overall_theme}</div>
+
+        <div className="apex-note">
+          <strong style={{fontFamily:"'Share Tech Mono',monospace",fontSize:9,letterSpacing:2,color:'var(--amber)'}}>APEX · STRATEGIC RATIONALE</strong><br/>
+          {c.apex_rationale}
+        </div>
+
+        <div className="card__label" style={{marginBottom:10}}>THIS WEEK'S OBJECTIVES</div>
+        <div className="objectives" style={{marginBottom:20}}>
+          {c.objectives?.map((obj, i) => (
+            <div key={i} className="objective">
+              <span className="objective__num">{String(i+1).padStart(2,'0')}</span>
+              <span>{obj}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="card__label" style={{marginBottom:10}}>AGENT ASSIGNMENTS</div>
+        <div className="agent-assignments">
+          {c.agent_assignments && Object.entries(c.agent_assignments).map(([agent, data]) => (
+            <div key={agent} className="assignment">
+              <div className="assignment__agent">{AGENTS[agent]?.icon || '◈'} {agent}</div>
+              <div className="assignment__focus">{data.focus}</div>
+              <div className="assignment__deliverables">
+                {data.deliverables?.map((d, i) => (
+                  <div key={i} className="deliverable">{d}</div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="card__label" style={{marginBottom:10}}>SUCCESS METRICS</div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+          {c.success_metrics?.map((m, i) => (
+            <div key={i} style={{
+              fontFamily:"'Share Tech Mono',monospace",fontSize:10,padding:'4px 10px',
+              border:'1px solid rgba(0,229,255,0.2)',color:'var(--cyan)',
+            }}>{m}</div>
+          ))}
+        </div>
+
+        {plan.status === 'pending_approval' && (
+          <div style={{marginTop:24,display:'flex',gap:10}}>
+            <button className="btn btn--green" type="button" onClick={approve} disabled={approving}>
+              {approving ? <><span className="spinner"/> APPROVING...</> : '✓ APPROVE THIS PLAN'}
+            </button>
+            <button className="btn btn--secondary" type="button" onClick={generate}>
+              REGENERATE
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── DAILY BRIEF VIEW ──────────────────────────────────────────────────────────
+function DailyBriefView({ user, plan, brief, taskStatuses, onBriefUpdate, onTaskUpdate }) {
+  const [loading, setLoading]   = useState(false);
+  const [approving, setApproving] = useState(false);
+  const [error, setError]       = useState('');
+
+  async function generate() {
+    setLoading(true);
+    setError('');
+    const data = await api.post('/app/api/daily-brief/generate', {});
+    setLoading(false);
+    if (data?.brief) { onBriefUpdate(data.brief); return; }
+    if (data?.error) setError(data.error);
+  }
+
+  async function approve() {
+    setApproving(true);
+    const data = await api.post(`/app/api/daily-brief/${brief.id}/approve`, {});
+    setApproving(false);
+    if (data?.tasks) {
+      onBriefUpdate({ ...brief, status: 'approved' });
+      data.tasks.forEach(t => onTaskUpdate(t.agent_name, 'queued'));
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="loading-full">
+        <span className="spinner"/>
+        APEX IS PLANNING TODAY'S AGENT TASKS...
+      </div>
+    );
+  }
+
+  if (!plan || plan.status !== 'approved') {
+    return (
+      <div className="empty">
+        <div className="empty__icon">◈</div>
+        <div className="empty__title">Approve Your Weekly Plan First</div>
+        <div className="empty__body">APEX needs an approved strategic plan before generating your daily brief.</div>
+      </div>
+    );
+  }
+
+  const today = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+
+  if (!brief) {
+    return (
+      <div className="empty">
+        <div className="empty__icon">◎</div>
+        <div className="empty__title">No Brief for Today</div>
+        <div className="empty__body">
+          Generate today's task assignments for all 6 agents based on your approved weekly plan.
+        </div>
+        {error && (
+          <div style={{
+            fontFamily:"'Share Tech Mono',monospace",fontSize:11,color:'var(--red)',
+            border:'1px solid rgba(255,45,85,0.3)',background:'rgba(255,45,85,0.05)',
+            padding:'12px 16px',marginBottom:16,textAlign:'left',lineHeight:1.7,maxWidth:480,margin:'0 auto 16px',
+          }}>
+            ✗ APEX ERROR — {error}
+          </div>
+        )}
+        <button className="btn btn--primary" type="button" onClick={generate}>
+          ⬡ GENERATE TODAY'S BRIEF
+        </button>
+      </div>
+    );
+  }
+
+  const c = brief.content;
+
+  return (
+    <div>
+      <div className="card">
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+          <div>
+            <div className="card__label">DAILY BRIEF — {today.toUpperCase()}</div>
+            <span className={`badge badge--${brief.status}`}>
+              {brief.status === 'pending_approval' ? 'AWAITING APPROVAL'
+               : brief.status === 'approved' || brief.status === 'executing' ? '⚡ EXECUTING'
+               : '✓ COMPLETE'}
+            </span>
+          </div>
+        </div>
+
+        <div className="apex-note">
+          <strong style={{fontFamily:"'Share Tech Mono',monospace",fontSize:9,letterSpacing:2,color:'var(--amber)'}}>APEX · TODAY'S BRIEFING</strong><br/>
+          <strong style={{color:'var(--white)'}}>{c.theme}</strong><br/>
+          {c.apex_note}
+        </div>
+
+        <div className="card__label" style={{marginBottom:12}}>AGENT TASK ASSIGNMENTS</div>
+        <div className="task-list">
+          {c.tasks?.map((task, i) => {
+            const agentInfo = AGENTS[task.agent] || {};
+            const dbTask    = brief.tasks?.find(t => t.agent_name === task.agent && t.task_description === task.task);
+            const status    = dbTask?.status || taskStatuses[task.agent] || 'queued';
+            return (
+              <div key={i} className={`task-item ${status === 'running' ? 'running' : status === 'complete' ? 'complete' : status === 'failed' ? 'failed' : ''}`}>
+                <span className="task-item__icon">{agentInfo.icon || '◈'}</span>
+                <div className="task-item__body">
+                  <div className="task-item__agent">{task.agent}</div>
+                  <div className="task-item__desc">{task.task}</div>
+                  <div className="task-item__type">{task.output_type?.replace(/_/g,' ').toUpperCase()} · {task.priority?.toUpperCase()} PRIORITY</div>
+                </div>
+                <div className="task-item__status">
+                  {status === 'complete' && dbTask?.quality_score && (
+                    <div className={`task-item__score ${scoreColor(dbTask.quality_score)}`}>
+                      {dbTask.quality_score}/100
+                    </div>
+                  )}
+                  <span className={`agent-card__status status-${status}`}>{status.toUpperCase()}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {brief.status === 'pending_approval' && (
+          <div style={{marginTop:20,display:'flex',gap:10}}>
+            <button className="btn btn--green" type="button" onClick={approve} disabled={approving}>
+              {approving ? <><span className="spinner"/> STARTING...</> : '⚡ APPROVE & EXECUTE'}
+            </button>
+            <button className="btn btn--secondary" type="button" onClick={generate}>REGENERATE</button>
+          </div>
+        )}
+
+        {(brief.status === 'executing' || brief.status === 'approved') && (
+          <div style={{marginTop:16,fontFamily:"'Share Tech Mono',monospace",fontSize:10,color:'var(--cyan)',letterSpacing:2}}>
+            ⚡ AGENTS ARE EXECUTING — CHECK THE ACTIVITY FEED FOR LIVE UPDATES
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── ACTIVITY FEED ─────────────────────────────────────────────────────────────
+function ActivityFeedView({ activity }) {
+  if (activity.length === 0) {
+    return (
+      <div className="empty">
+        <div className="empty__icon">◎</div>
+        <div className="empty__title">No Activity Yet</div>
+        <div className="empty__body">Agent activity will appear here in real time once your daily brief is approved.</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card">
+      <div className="card__label">LIVE AGENT ACTIVITY STREAM</div>
+      <div className="feed">
+        {activity.map((item, i) => {
+          const agentKey = (item.agent_name || 'USER').toUpperCase();
+          const info = AGENTS[agentKey] || { icon: '●', dotClass: 'dot-user' };
+          return (
+            <div key={i} className="feed-item">
+              <div className={`feed-item__dot ${info.dotClass}`}/>
+              <div className="feed-item__body">
+                <div className="feed-item__agent">{agentKey}</div>
+                <div className="feed-item__msg">{item.message}</div>
+              </div>
+              <div className="feed-item__time">{fmtTime(item.timestamp)}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── OUTPUT LIBRARY ────────────────────────────────────────────────────────────
+function OutputLibrary({ outputs }) {
+  const [selected, setSelected] = useState(null);
+  const [copied, setCopied]     = useState(false);
+
+  function copyOutput() {
+    navigator.clipboard.writeText(selected.output || '').then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  if (outputs.length === 0) {
+    return (
+      <div className="empty">
+        <div className="empty__icon">◆</div>
+        <div className="empty__title">No Outputs Yet</div>
+        <div className="empty__body">Completed agent deliverables will appear here after your daily brief executes.</div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="outputs-grid">
+        {outputs.map(o => {
+          const info = AGENTS[o.agent_name] || { icon: '◈', dotClass: 'dot-user' };
+          return (
+            <div key={o.id} className="output-card" onClick={() => setSelected(o)}>
+              <div className="output-card__header">
+                <span className="output-card__icon">{info.icon}</span>
+                <span className="output-card__agent">{o.agent_name}</span>
+                {o.quality_score && (
+                  <span className={`output-card__score ${scoreColor(o.quality_score)}`}>
+                    {o.quality_score}/100
+                  </span>
+                )}
+                <span className="output-card__date">{o.brief_date}</span>
+              </div>
+              <div className="output-card__body">
+                <div className="output-card__task">{o.task_description}</div>
+                <div className="output-card__preview">{o.output}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {selected && (
+        <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setSelected(null)}>
+          <div className="modal">
+            <div className="modal__header">
+              <span style={{color:'var(--amber)',fontSize:18}}>{AGENTS[selected.agent_name]?.icon}</span>
+              <div>
+                <div style={{fontFamily:"'Share Tech Mono',monospace",fontSize:10,letterSpacing:2,color:'var(--amber)'}}>{selected.agent_name}</div>
+                <div style={{fontSize:13,fontWeight:500}}>{selected.task_description}</div>
+              </div>
+              {selected.quality_score && (
+                <span className={`output-card__score ${scoreColor(selected.quality_score)}`} style={{fontSize:13,marginLeft:'auto',marginRight:8}}>
+                  {selected.quality_score}/100
+                </span>
+              )}
+              <button className="modal__close" type="button" onClick={() => setSelected(null)}>✕ CLOSE</button>
+            </div>
+            <div className="modal__body">
+              <div className="modal__output">{selected.output}</div>
+            </div>
+            <div className="modal__copy">
+              <button className="btn-copy" type="button" onClick={copyOutput}>
+                {copied ? '✓ COPIED' : 'COPY OUTPUT'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── ROOT APP ──────────────────────────────────────────────────────────────────
+function App() {
+  const [user,         setUser]         = useState(null);
+  const [loading,      setLoading]      = useState(true);
+  const [view,         setView]         = useState('dashboard');
+  const [plan,         setPlan]         = useState(null);
+  const [brief,        setBrief]        = useState(null);
+  const [outputs,      setOutputs]      = useState([]);
+  const [activity,     setActivity]     = useState([]);
+  const [taskStatuses, setTaskStatuses] = useState({});
+  const eventSource = useRef(null);
+
+  // ── BOOT ───────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    api.get('/app/api/me').then(data => {
+      if (data && !data.error) {
+        setUser(data);
+        loadData();
+      }
+      setLoading(false);
+    });
+  }, []);
+
+  async function loadData() {
+    const [planRes, briefRes, outRes, actRes] = await Promise.all([
+      api.get('/app/api/weekly-plan'),
+      api.get('/app/api/daily-brief'),
+      api.get('/app/api/outputs'),
+      api.get('/app/api/activity'),
+    ]);
+
+    if (planRes?.plan)      setPlan(planRes.plan);
+    if (briefRes?.brief) {
+      setBrief(briefRes.brief);
+      const statuses = {};
+      briefRes.brief.tasks?.forEach(t => { statuses[t.agent_name] = t.status; });
+      setTaskStatuses(statuses);
+    }
+    if (outRes?.outputs)    setOutputs(outRes.outputs);
+    if (actRes?.activity)   setActivity(actRes.activity);
+  }
+
+  // ── SSE ────────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!user) return;
+
+    const es = new EventSource('/app/api/stream', { withCredentials: true });
+    eventSource.current = es;
+
+    es.addEventListener('task_started', e => {
+      const d = JSON.parse(e.data);
+      setTaskStatuses(prev => ({ ...prev, [d.agent]: 'running' }));
+      setActivity(prev => [{
+        agent_name: d.agent, message: `${d.agent} started: ${d.description?.slice(0,80)}...`,
+        timestamp: Date.now() / 1000, event_type: 'task_started',
+      }, ...prev]);
+    });
+
+    es.addEventListener('task_complete', e => {
+      const d = JSON.parse(e.data);
+      setTaskStatuses(prev => ({ ...prev, [d.agent]: 'complete' }));
+      setActivity(prev => [{
+        agent_name: d.agent,
+        message: `${d.agent} scored ${d.score}/100 — ${d.passed ? '✓ Passed' : '⚠ Below threshold'}`,
+        timestamp: Date.now() / 1000, event_type: 'task_complete',
+      }, ...prev]);
+      // Refresh outputs
+      api.get('/app/api/outputs').then(r => { if (r?.outputs) setOutputs(r.outputs); });
+      // Update brief task statuses
+      setBrief(prev => {
+        if (!prev) return prev;
+        const tasks = (prev.tasks || []).map(t =>
+          t.id === d.task_id ? { ...t, status: 'complete', quality_score: d.score } : t
+        );
+        return { ...prev, tasks };
+      });
+      setUser(prev => prev ? { ...prev, credits: Math.max(0, prev.credits - 1) } : prev);
+    });
+
+    es.addEventListener('task_failed', e => {
+      const d = JSON.parse(e.data);
+      setTaskStatuses(prev => ({ ...prev, [d.agent]: 'failed' }));
+      setActivity(prev => [{
+        agent_name: d.agent, message: `${d.agent} failed: ${d.error}`,
+        timestamp: Date.now() / 1000, event_type: 'task_failed',
+      }, ...prev]);
+    });
+
+    es.addEventListener('brief_complete', e => {
+      const d = JSON.parse(e.data);
+      setActivity(prev => [{ agent_name: 'APEX', message: d.message, timestamp: Date.now()/1000, event_type: 'brief_complete' }, ...prev]);
+      setBrief(prev => prev ? { ...prev, status: 'complete' } : prev);
+    });
+
+    es.addEventListener('apex_thinking', e => {
+      const d = JSON.parse(e.data);
+      setActivity(prev => [{ agent_name: 'APEX', message: d.message, timestamp: Date.now()/1000, event_type: 'thinking' }, ...prev]);
+    });
+
+    es.addEventListener('plan_approved', e => {
+      const d = JSON.parse(e.data);
+      setActivity(prev => [{ agent_name: 'USER', message: d.message, timestamp: Date.now()/1000, event_type: 'plan_approved' }, ...prev]);
+    });
+
+    return () => es.close();
+  }, [user]);
+
+  async function handleLogin(userData) {
+    setUser(userData);
+    await loadData();
+  }
+
+  async function handleLogout() {
+    await api.post('/app/api/logout', {});
+    setUser(null);
+    setPlan(null);
+    setBrief(null);
+    setOutputs([]);
+    setActivity([]);
+    setTaskStatuses({});
+  }
+
+  function updateTaskStatus(agentName, status) {
+    setTaskStatuses(prev => ({ ...prev, [agentName]: status }));
+  }
+
+  if (loading) {
+    return (
+      <div style={{height:'100vh',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16}}>
+        <span className="spinner" style={{width:32,height:32}}/>
+        <span style={{fontFamily:"'Share Tech Mono',monospace",fontSize:11,color:'var(--muted)',letterSpacing:3}}>INITIALISING COMMAND CENTER...</span>
+      </div>
+    );
+  }
+
+  if (!user) return <LoginPage onLogin={handleLogin}/>;
+
+  const NAV_ITEMS = [
+    { id: 'dashboard', icon: '⬡', label: 'Dashboard' },
+    { id: 'plan',      icon: '◈', label: 'Weekly Plan' },
+    { id: 'brief',     icon: '◎', label: 'Daily Brief' },
+    { id: 'feed',      icon: '◐', label: 'Activity' },
+    { id: 'outputs',   icon: '◆', label: 'Outputs', badge: outputs.length || null },
+  ];
+
+  const VIEW_TITLES = {
+    dashboard: { title: 'COMMAND CENTER',  sub: 'DIRT PLATFORM · AGENT STATUS' },
+    plan:      { title: 'WEEKLY PLAN',     sub: 'APEX STRATEGIC OVERVIEW' },
+    brief:     { title: 'DAILY BRIEF',     sub: 'TODAY\'S AGENT ASSIGNMENTS' },
+    feed:      { title: 'ACTIVITY FEED',   sub: 'LIVE AGENT EXECUTION STREAM' },
+    outputs:   { title: 'OUTPUT LIBRARY',  sub: `${outputs.length} DELIVERABLES` },
+  };
+
+  const credits = user.credits ?? 45;
+  const creditPct = Math.max(0, Math.min(100, (credits / 45) * 100));
+
+  const currentTitle = VIEW_TITLES[view];
+
+  return (
+    <div className="app">
+      {/* ── SIDEBAR ─────────────────────────────────────────────────────── */}
+      <div className="sidebar">
+        <div className="sidebar__logo">
+          <div className="sidebar__logo-mark">⬡ DIRT</div>
+          <div className="sidebar__logo-tag">COMMAND CENTER</div>
+        </div>
+        <nav className="sidebar__nav">
+          {NAV_ITEMS.map(item => (
+            <div
+              key={item.id}
+              className={`nav-item ${view === item.id ? 'active' : ''}`}
+              onClick={() => setView(item.id)}
+            >
+              <span className="nav-item__icon">{item.icon}</span>
+              {item.label}
+              {item.badge ? <span className="nav-item__badge">{item.badge}</span> : null}
+            </div>
+          ))}
+        </nav>
+        <div className="sidebar__footer">
+          <div className="credits-bar">
+            <div className="credits-bar__label">
+              <span>TASK CREDITS</span>
+              <span style={{color:'var(--amber)'}}>{credits}/45</span>
+            </div>
+            <div className="credits-bar__track">
+              <div className="credits-bar__fill" style={{width:`${creditPct}%`}}/>
+            </div>
+          </div>
+          <div className="user-chip">
+            <div className="user-chip__avatar">{(user.name || user.email || 'U')[0].toUpperCase()}</div>
+            <div className="user-chip__info">
+              <div className="user-chip__name">{user.name || user.companyName || 'Founder'}</div>
+              <div className="user-chip__email">{user.email}</div>
+            </div>
+            <button className="btn-logout" type="button" onClick={handleLogout}>OUT</button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MAIN ────────────────────────────────────────────────────────── */}
+      <div className="main">
+        <div className="main-header">
+          <div>
+            <div className="main-header__title">{currentTitle.title}</div>
+            <div className="main-header__sub">{currentTitle.sub}</div>
+          </div>
+          {brief?.status === 'executing' && (
+            <div style={{display:'flex',alignItems:'center',gap:8,fontFamily:"'Share Tech Mono',monospace",fontSize:10,color:'var(--cyan)'}}>
+              <span className="spinner" style={{width:14,height:14,borderWidth:1.5}}/>
+              AGENTS EXECUTING
+            </div>
+          )}
+        </div>
+
+        <div className="main-content">
+          {view === 'dashboard' && (
+            <Dashboard
+              user={user} plan={plan} brief={brief}
+              taskStatuses={taskStatuses} activity={activity}
+              outputCount={outputs.length} onNavigate={setView}
+            />
+          )}
+          {view === 'plan' && (
+            <WeeklyPlanView user={user} plan={plan} onPlanUpdate={setPlan}/>
+          )}
+          {view === 'brief' && (
+            <DailyBriefView
+              user={user} plan={plan} brief={brief}
+              taskStatuses={taskStatuses}
+              onBriefUpdate={setBrief}
+              onTaskUpdate={updateTaskStatus}
+            />
+          )}
+          {view === 'feed' && <ActivityFeedView activity={activity}/>}
+          {view === 'outputs' && <OutputLibrary outputs={outputs}/>}
+        </div>
+      </div>
+
+      {/* ── MOBILE NAV ──────────────────────────────────────────────────── */}
+      <div className="mobile-nav">
+        {NAV_ITEMS.map(item => (
+          <div
+            key={item.id}
+            className={`mobile-nav-item ${view === item.id ? 'active' : ''}`}
+            onClick={() => setView(item.id)}
+          >
+            <span className="mobile-nav-item__icon">{item.icon}</span>
+            {item.label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

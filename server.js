@@ -3,25 +3,27 @@ const express  = require('express');
 const cors     = require('cors');
 const session  = require('express-session');
 const path     = require('path');
+const fs       = require('fs');
 const stripe   = require('./src/lib/stripe');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
+// Ensure data directory exists before DB loads
+const dataDir = path.join(__dirname, 'data');
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function escHtml(str) {
   return String(str ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 // ── MIDDLEWARE ────────────────────────────────────────────────────────────────
 const allowedOrigins = process.env.APP_URL
   ? [process.env.APP_URL, `http://localhost:${PORT}`]
-  : [`http://localhost:${PORT}`, 'http://127.0.0.1:' + PORT];
+  : [`http://localhost:${PORT}`, `http://127.0.0.1:${PORT}`];
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 
@@ -30,14 +32,13 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure:   process.env.NODE_ENV === 'production',
     httpOnly: true,
     sameSite: 'lax',
-    maxAge: 8 * 60 * 60 * 1000,
+    maxAge:   8 * 60 * 60 * 1000,
   },
 }));
 
-// Static files with 1-hour cache in production
 app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0,
   etag: true,
@@ -52,6 +53,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(require('./src/routes/checkout'));
 app.use(require('./src/routes/webhook'));
 app.use(require('./src/routes/admin'));
+app.use(require('./src/routes/app'));
 
 // ── PAGE ROUTES ───────────────────────────────────────────────────────────────
 app.get('/checkout', (req, res) =>
@@ -64,6 +66,26 @@ app.get('/success', async (req, res) => {
     if (req.query.session_id) {
       const sess = await stripe.checkout.sessions.retrieve(req.query.session_id);
       email = sess.customer_details?.email || '';
+      const meta = sess.metadata || {};
+
+      // Provision user immediately — works even if stripe listen isn't running
+      if (email) {
+        const { q: dbq } = require('./src/lib/db');
+        const name = `${meta.firstName || ''} ${meta.lastName || ''}`.trim();
+        try {
+          dbq.createUser.run({
+            email:                   email.toLowerCase(),
+            name:                    name || null,
+            company_name:            meta.companyName || null,
+            industry:                meta.industry    || null,
+            stage:                   meta.stage       || null,
+            mission:                 null,
+            goal:                    meta.goal        || null,
+            stripe_customer_id:      sess.customer    || null,
+            stripe_subscription_id:  null,
+          });
+        } catch (_) {} // already exists — fine
+      }
     }
   } catch (_) {}
 
@@ -83,20 +105,26 @@ app.get('/success', async (req, res) => {
   h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,10vw,64px);color:#39FF6E;letter-spacing:4px;margin-bottom:16px;}
   p{color:#6B6490;font-size:14px;line-height:1.8;}
   .email{color:#F0EEFF;font-weight:500;}
-  .back{display:inline-block;margin-top:28px;color:#F5A623;text-decoration:none;
+  .back{display:inline-block;margin-top:16px;color:#F5A623;text-decoration:none;
         font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;
-        border:1px solid rgba(245,166,35,0.3);padding:10px 24px;transition:all 0.2s;}
+        border:1px solid rgba(245,166,35,0.3);padding:10px 24px;transition:all 0.2s;margin-right:8px;}
+  .app-btn{display:inline-block;margin-top:16px;background:#F5A623;color:#000;text-decoration:none;
+        font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;
+        border:1px solid #F5A623;padding:10px 24px;transition:all 0.2s;}
   .back:hover{background:rgba(245,166,35,0.08);}
+  .app-btn:hover{background:#FFD27A;}
 </style>
 </head>
 <body>
   <div class="shell">
     <div class="icon">⬡</div>
     <h1>SHELL BROKEN.</h1>
-    <p>Your DIRT access credentials will be sent to<br/>
-       ${email ? `<span class="email">${escHtml(email)}</span>` : 'your email address'}</p>
-    <p style="margin-top:16px;font-size:12px">Check your inbox — agents are being provisioned now.</p>
-    <a class="back" href="/checkout">← Back to DIRT</a>
+    <p>Your DIRT access is active${email ? ` for<br/><span class="email">${escHtml(email)}</span>` : ''}.</p>
+    <p style="margin-top:12px;font-size:12px">Your 6-agent team is standing by.</p>
+    <div style="margin-top:28px">
+      <a class="app-btn" href="/app">LAUNCH DIRT APP →</a>
+      <a class="back" href="/">← Campaign</a>
+    </div>
   </div>
 </body>
 </html>`);
@@ -110,13 +138,14 @@ app.get('/campaign', (req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'campaign.html'))
 );
 
-// Suppress favicon 404
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 // ── START ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`\n⬡  DIRT server  →  http://localhost:${PORT}`);
+  console.log(`   Campaign     →  http://localhost:${PORT}/`);
   console.log(`   Checkout     →  http://localhost:${PORT}/checkout`);
+  console.log(`   App          →  http://localhost:${PORT}/app`);
   console.log(`   Admin        →  http://localhost:${PORT}/admin`);
   console.log(`\n   To test webhooks:`);
   console.log(`   stripe listen --forward-to localhost:${PORT}/webhook\n`);
