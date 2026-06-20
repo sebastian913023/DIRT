@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#000008"/>
+<title>DIRT · Mobile</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════════════════════════════
+   DIRT MOBILE — Built from mobile up. Never ported.
+   ══════════════════════════════════════════════════════════ */
+:root{
+  --void:#000008;--deep:#060412;--surf:#0C0919;--card:#11101F;--raised:#17152B;
+  --b0:#1A1730;--b1:#252040;--b2:#352D60;
+  --amber:#F5A623;--amber2:#FFD27A;--amber3:#C47B10;
+  --cyan:#00E5FF;--green:#39FF6E;--red:#FF2D55;--purple:#9B59FF;
+  --t1:#EDE8FF;--t2:#9B93C4;--t3:#4A4468;
+  --fd:'Orbitron',monospace;--fm:'Share Tech Mono',monospace;--fb:'Exo 2',sans-serif;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+  --nav-h:60px;--top-h:56px;
+  --radius:0px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{
+  height:100%;width:100%;
+  background:var(--void);color:var(--t1);
+  font-family:var(--fb);overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 0%,rgba(245,166,35,.06) 0%,transparent 60%),
+    radial-gradient(1px 1px at 15% 20%,rgba(245,166,35,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 85% 15%,rgba(0,229,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 50% 60%,rgba(255,255,255,.2) 0%,transparent 100%),
+    radial-gradient(1px 1px at 8%  75%,rgba(245,166,35,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 92% 50%,rgba(155,89,255,.25) 0%,transparent 100%);
+}
+#app{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:2px;}
+::-webkit-scrollbar-thumb{background:var(--b2);}
+
+/* ── KEYFRAMES ── */
+@keyframes spin-cw{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes spin-ccw{from{transform:rotate(360deg)}to{transform:rotate(0)}}
+@keyframes pulse-g{0%,100%{opacity:1;box-shadow:0 0 8px var(--green)}50%{opacity:.3}}
+@keyframes pulse-a{0%,100%{box-shadow:0 0 10px var(--amber)}50%{box-shadow:none}}
+@keyframes slide-up{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes slide-left{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes typing{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+@keyframes scan{0%{top:-2px}100%{top:100%}}
+@keyframes ripple{0%{transform:scale(0);opacity:0.8}100%{transform:scale(4);opacity:0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes tab-pop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+.spin-cw{animation:spin-cw 18s linear infinite}
+.spin-ccw{animation:spin-ccw 12s linear infinite}
+.pulse-g{animation:pulse-g 1.5s ease-in-out infinite}
+.slide-up{animation:slide-up .3s ease forwards}
+.slide-left{animation:slide-left .3s ease forwards}
+.fade{animation:fade .4s ease forwards}
+
+/* ── TYPOGRAPHY ── */
+.fd{font-family:var(--fd)} .fm{font-family:var(--fm)}
+.amber{color:var(--amber)} .amber2{color:var(--amber2)}
+.cyan{color:var(--cyan)} .green{color:var(--green)}
+.red{color:var(--red)} .t2{color:var(--t2)} .t3{color:var(--t3)}
+.glow-a{text-shadow:0 0 12px var(--amber),0 0 24px rgba(245,166,35,.3)}
+
+/* ══════════════════════════════════════════
+   LANDING SCREEN
+   ══════════════════════════════════════════ */
+#landing{
+  position:fixed;inset:0;z-index:200;
+  background:var(--void);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 24px calc(40px + var(--safe-bot));
+  text-align:center;
+  transition:opacity .5s ease, transform .5s ease;
+}
+#landing.exit{opacity:0;transform:scale(1.05);}
+
+.land-eyebrow{
+  font-family:var(--fm);font-size:9px;letter-spacing:4px;
+  color:var(--amber);text-transform:uppercase;margin-bottom:16px;
+  animation:slide-up .6s ease .2s both;
+}
+.land-orbit{animation:slide-up .6s ease .3s both;}
+.land-title{
+  font-family:var(--fd);font-size:64px;font-weight:900;
+  color:var(--amber);letter-spacing:8px;line-height:1;
+  text-shadow:0 0 40px rgba(245,166,35,.4);
+  animation:slide-up .6s ease .5s both;
+  margin-top:16px;
+}
+.land-sub{
+  font-family:var(--fd);font-size:9px;letter-spacing:4px;
+  color:var(--t2);margin:10px 0 20px;
+  animation:slide-up .6s ease .6s both;
+}
+.land-desc{
+  font-size:13px;color:var(--t2);line-height:1.8;
+  max-width:300px;margin:0 auto 28px;font-weight:300;
+  animation:slide-up .6s ease .7s both;
+}
+.land-badges{
+  display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+  margin-bottom:28px;animation:slide-up .6s ease .8s both;
+}
+.land-badge{
+  font-family:var(--fm);font-size:8px;letter-spacing:1.5px;
+  padding:5px 10px;border:1px solid;
+}
+.land-badge.primary{border-color:rgba(245,166,35,.4);color:var(--amber);background:rgba(245,166,35,.05);}
+.land-badge.fallback{border-color:rgba(0,229,255,.3);color:var(--cyan);background:rgba(0,229,255,.04);}
+.land-btn{
+  font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;background:var(--amber);color:#000;
+  border:none;padding:16px 48px;
+  cursor:pointer;position:relative;overflow:hidden;
+  animation:slide-up .6s ease .9s both;
+  -webkit-tap-highlight-color:transparent;
+  min-height:52px;
+}
+.land-btn:active{background:var(--amber2);}
+.land-demo{
+  font-family:var(--fm);font-size:9px;letter-spacing:2px;
+  color:var(--t3);background:none;border:none;
+  padding:12px 24px;cursor:pointer;margin-top:8px;
+  animation:slide-up .6s ease 1s both;min-height:44px;
+}
+.land-demo:active{color:var(--t2);}
+
+/* ══════════════════════════════════════════
+   ONBOARD SCREEN
+   ══════════════════════════════════════════ */
+#onboard{
+  position:fixed;inset:0;z-index:190;
+  background:var(--void);
+  display:none;flex-direction:column;
+  padding-top:calc(var(--safe-top) + 16px);
+}
+#onboard.show{display:flex;}
+
+.ob-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px 16px;border-bottom:1px solid var(--b0);flex-shrink:0;
+}
+.ob-logo{font-family:var(--fd);font-size:16px;font-weight:900;color:var(--amber);letter-spacing:4px;}
+.ob-step-indicator{font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--t3);}
+
+.ob-progress{height:2px;background:var(--b0);flex-shrink:0;}
+.ob-progress-fill{height:100%;background:linear-gradient(90deg,var(--amber3),var(--amber),var(--amber2));transition:width .4s ease;}
+
+.ob-body{flex:1;overflow-y:auto;padding:24px 20px;-webkit-overflow-scrolling:touch;}
+
+.ob-title{font-family:var(--fd);font-size:22px;font-weight:700;margin-bottom:6px;}
+.ob-desc{font-size:12px;color:var(--t3);margin-bottom:24px;line-height:1.7;}
+
+.ob-field{margin-bottom:16px;}
+.ob-label{font-family:var(--fm);font-size:8px;letter-spacing:3px;color:var(--amber);display:block;margin-bottom:6px;text-transform:uppercase;}
+.ob-input{
+  width:100%;background:var(--deep);border:1px solid var(--b1);
+  color:var(--t1);font-family:var(--fb);font-size:15px;
+  padding:14px 16px;outline:none;
+  -webkit-appearance:none;border-radius:0;
+  transition:border-color .2s;min-height:50px;
+}
+.ob-input:focus{border-color:var(--amber);}
+.ob-input::placeholder{color:var(--t3);}
+textarea.ob-input{resize:none;}
+
+.ob-footer{
+  padding:16px 20px calc(16px + var(--safe-bot));
+  border-top:1px solid var(--b0);flex-shrink:0;
+  display:flex;gap:12px;
+}
+.ob-btn-back{
+  font-family:var(--fd);font-size:9px;letter-spacing:2px;
+  background:transparent;border:1px solid var(--b1);color:var(--t2);
+  padding:14px 20px;cursor:pointer;min-height:50px;
+}
+.ob-btn-next{
+  flex:1;font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:2px;
+  background:var(--amber);color:#000;border:none;
+  padding:14px;cursor:pointer;min-height:50px;
+  -webkit-tap-highlight-color:transparent;
+}
+.ob-btn-next:active{background:var(--amber2);}
+
+/* ══════════════════════════════════════════
+   DASHBOARD SHELL
+   ══════════════════════════════════════════ */
+#dashboard{
+  position:fixed;inset:0;z-index:180;
+  background:var(--void);
+  display:none;flex-direction:column;
+}
+#dashboard.show{display:flex;}
+
+/* TOP STATUS BAR */
+.top-bar{
+  padding-top:calc(var(--safe-top) + 8px);
+  padding-bottom:8px;
+  padding-left:16px;padding-right:16px;
+  background:rgba(0,0,8,.95);
+  border-bottom:1px solid var(--b0);
+  flex-shrink:0;
+  display:flex;align-items:center;gap:10px;
+}
+.top-logo{font-family:var(--fd);font-size:14px;font-weight:900;color:var(--amber);letter-spacing:4px;}
+.top-status{display:flex;align-items:center;gap:5px;margin-left:auto;}
+.top-dot{width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse-g 1.5s infinite;}
+.top-online{font-family:var(--fm);font-size:8px;color:var(--green);letter-spacing:1px;}
+.top-model{font-family:var(--fm);font-size:8px;padding:3px 8px;border:1px solid rgba(245,166,35,.3);color:var(--amber);margin-left:6px;}
+.top-credits{font-family:var(--fm);font-size:8px;padding:3px 8px;border:1px solid rgba(57,255,110,.25);color:var(--green);}
+
+/* AGENT RADAR STRIP */
+.agent-strip{
+  display:flex;gap:0;overflow-x:auto;
+  background:var(--surf);border-bottom:1px solid var(--b0);
+  flex-shrink:0;padding:8px 12px;gap:6px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.agent-strip::-webkit-scrollbar{display:none;}
+.agent-chip{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 10px;background:var(--card);border:1px solid var(--b0);
+  flex-shrink:0;transition:border-color .2s;
+  position:relative;overflow:hidden;
+}
+.agent-chip.active-chip{border-color:var(--green);}
+.agent-chip.busy-chip{border-color:var(--cyan);}
+.agent-chip-icon{font-size:13px;color:var(--amber);}
+.agent-chip-name{font-family:var(--fd);font-size:7px;letter-spacing:1.5px;color:var(--t1);}
+.agent-chip-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.agent-chip-dot.a{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse-g 1.5s infinite;}
+.agent-chip-dot.b{background:var(--cyan);box-shadow:0 0 6px var(--cyan);animation:pulse-a 1s infinite;}
+.agent-chip-dot.i{background:var(--t3);}
+
+/* SCREEN AREA */
+.screen-area{flex:1;overflow:hidden;position:relative;}
+.screen{position:absolute;inset:0;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.screen.active{display:flex;flex-direction:column;}
+.screen-pad{padding:16px;}
+
+/* BOTTOM NAV */
+.bottom-nav{
+  display:flex;
+  padding-bottom:calc(var(--safe-bot) + 4px);
+  padding-top:6px;
+  background:rgba(0,0,8,.97);
+  border-top:1px solid var(--b0);
+  flex-shrink:0;
+  position:relative;z-index:10;
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:4px 0;background:none;border:none;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  min-height:var(--nav-h);justify-content:center;
+  position:relative;overflow:hidden;
+}
+.nav-icon{font-size:18px;transition:color .2s;color:var(--t3);}
+.nav-label{font-family:var(--fm);font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);transition:color .2s;}
+.nav-item.active .nav-icon{color:var(--amber);}
+.nav-item.active .nav-label{color:var(--amber);}
+.nav-item::after{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:0;height:2px;background:var(--amber);transition:width .2s;
+}
+.nav-item.active::after{width:60%;}
+.nav-badge{
+  position:absolute;top:4px;right:calc(50% - 16px);
+  width:14px;height:14px;border-radius:50%;
+  background:var(--red);font-family:var(--fm);font-size:7px;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+}
+
+/* ══════════════════════════════════════════
+   COMMAND SCREEN
+   ══════════════════════════════════════════ */
+#screen-command{
+  display:none;flex-direction:column;overflow:hidden;
+}
+#screen-command.active{display:flex;}
+
+.chat-header{
+  padding:10px 16px;border-bottom:1px solid var(--b0);
+  display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.chat-header-icon{font-size:18px;color:var(--amber);}
+.chat-header-info{flex:1;}
+.chat-header-name{font-family:var(--fd);font-size:10px;letter-spacing:2px;color:var(--t1);}
+.chat-header-model{font-family:var(--fm);font-size:8px;color:var(--t3);margin-top:1px;}
+.pipeline-mini{
+  display:flex;align-items:center;gap:3px;
+  font-family:var(--fm);font-size:7px;letter-spacing:1px;
+}
+.pmini{padding:2px 6px;border:1px solid var(--b0);color:var(--t3);}
+.pmini.done{border-color:var(--green);color:var(--green);}
+.pmini.run{border-color:var(--amber);color:var(--amber);}
+.pmini-sep{color:var(--t3);}
+
+.chat-messages{
+  flex:1;overflow-y:auto;padding:14px 14px 80px;
+  display:flex;flex-direction:column;gap:10px;
+  -webkit-overflow-scrolling:touch;
+}
+.chat-empty{
+  text-align:center;padding:32px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.empty-icon{font-size:40px;color:var(--amber);animation:float 3s ease-in-out infinite;}
+.empty-title{font-family:var(--fd);font-size:12px;letter-spacing:2px;color:var(--t2);}
+.empty-desc{font-size:11px;color:var(--t3);line-height:1.8;max-width:260px;}
+.suggestions{display:flex;flex-direction:column;gap:6px;width:100%;}
+.suggestion{
+  font-family:var(--fm);font-size:10px;letter-spacing:1px;
+  padding:10px 14px;background:var(--card);border:1px solid var(--b0);
+  color:var(--t2);text-align:left;cursor:pointer;min-height:44px;
+  display:flex;align-items:center;
+  transition:border-color .15s;
+}
+.suggestion:active{border-color:var(--amber);color:var(--amber);}
+
+/* MESSAGES */
+.msg{max-width:88%;padding:11px 14px;font-size:13px;line-height:1.7;animation:slide-up .25s ease;}
+.msg.user{align-self:flex-end;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.25);color:var(--amber2);font-family:var(--fm);font-size:12px;}
+.msg.assistant{align-self:flex-start;background:var(--card);border:1px solid var(--b0);}
+.msg-agent-label{font-family:var(--fd);font-size:7px;letter-spacing:2px;color:var(--amber);margin-bottom:7px;}
+.msg-content{font-size:12px;line-height:1.75;white-space:pre-wrap;}
+.msg-stages{margin-top:8px;display:flex;gap:4px;flex-wrap:wrap;}
+.msg-stage{font-family:var(--fm);font-size:7px;padding:2px 7px;border:1px solid;}
+.ms-plan{border-color:var(--purple);color:var(--purple);}
+.ms-exec{border-color:var(--cyan);color:var(--cyan);}
+.ms-reflect{border-color:var(--green);color:var(--green);}
+
+/* SCORE MINI */
+.score-mini{
+  display:flex;align-items:center;gap:8px;
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--b0);
+}
+.score-num{
+  width:36px;height:36px;border-radius:50%;border:1.5px solid;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fd);font-size:10px;font-weight:700;flex-shrink:0;
+}
+.score-num.high{border-color:var(--green);color:var(--green);}
+.score-num.mid{border-color:var(--amber);color:var(--amber);}
+.score-num.low{border-color:var(--red);color:var(--red);}
+.score-bars{flex:1;}
+.sbar{display:flex;align-items:center;gap:4px;margin-bottom:2px;}
+.sbar-t{font-family:var(--fm);font-size:7px;color:var(--t3);width:56px;flex-shrink:0;}
+.sbar-tr{flex:1;height:3px;background:var(--deep);}
+.sbar-tf{height:100%;transition:width 1s ease;}
+
+/* TYPING */
+.typing-msg{
+  align-self:flex-start;display:flex;align-items:center;gap:8px;
+  padding:10px 14px;background:var(--card);border:1px solid var(--b0);
+}
+.tdot{width:4px;height:4px;border-radius:50%;background:var(--amber);}
+.tdot:nth-child(1){animation:typing 1.4s ease-in-out 0s infinite}
+.tdot:nth-child(2){animation:typing 1.4s ease-in-out .2s infinite}
+.tdot:nth-child(3){animation:typing 1.4s ease-in-out .4s infinite}
+.typing-stage{font-family:var(--fm);font-size:8px;color:var(--t3);letter-spacing:1px;}
+
+/* FAB */
+.fab-area{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:10px 14px calc(10px);
+  background:linear-gradient(to top,rgba(0,0,8,1) 60%,transparent);
+  display:flex;gap:8px;align-items:flex-end;
+}
+.fab-input{
+  flex:1;background:var(--card);border:1px solid var(--b1);
+  color:var(--t1);font-family:var(--fb);font-size:14px;
+  padding:12px 14px;outline:none;resize:none;
+  max-height:120px;-webkit-appearance:none;border-radius:0;
+  line-height:1.5;
+}
+.fab-input:focus{border-color:var(--amber);}
+.fab-input::placeholder{color:var(--t3);}
+.fab-btn{
+  width:46px;height:46px;background:var(--amber);
+  border:none;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:bold;color:#000;
+  -webkit-tap-highlight-color:transparent;
+  position:relative;overflow:hidden;
+}
+.fab-btn:active{background:var(--amber2);}
+.fab-btn.loading{background:var(--b1);pointer-events:none;}
+.fab-btn .fab-ripple{
+  position:absolute;inset:0;background:rgba(255,255,255,.3);
+  border-radius:50%;transform:scale(0);opacity:0;
+}
+.fab-btn:active .fab-ripple{animation:ripple .4s ease;}
+
+/* ══════════════════════════════════════════
+   AGENTS SCREEN
+   ══════════════════════════════════════════ */
+.agents-grid{display:flex;flex-direction:column;gap:10px;}
+.agent-card-full{
+  background:var(--card);border:1px solid var(--b0);
+  overflow:hidden;position:relative;
+}
+.agent-card-full::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--amber),transparent);opacity:.2;
+}
+.acf-top{display:flex;align-items:center;gap:12px;padding:14px 16px;}
+.acf-icon{font-size:28px;color:var(--amber);width:36px;text-align:center;flex-shrink:0;}
+.acf-info{flex:1;}
+.acf-name{font-family:var(--fd);font-size:12px;letter-spacing:2px;color:var(--t1);}
+.acf-role{font-family:var(--fm);font-size:9px;color:var(--t3);margin-top:2px;}
+.acf-status{
+  font-family:var(--fm);font-size:8px;letter-spacing:2px;
+  padding:4px 10px;border:1px solid;
+}
+.acf-status.active{border-color:var(--green);color:var(--green);}
+.acf-status.idle{border-color:var(--b1);color:var(--t3);}
+.acf-status.busy{border-color:var(--cyan);color:var(--cyan);}
+.acf-body{padding:0 16px 14px;}
+.acf-model{font-family:var(--fm);font-size:9px;padding:4px 8px;border:1px solid;margin-bottom:8px;display:inline-block;}
+.acf-model.p{border-color:rgba(245,166,35,.3);color:var(--amber);}
+.acf-model.f{border-color:rgba(0,229,255,.25);color:var(--cyan);}
+.acf-ptrack{background:var(--deep);height:3px;margin-top:10px;}
+.acf-pfill{height:100%;background:linear-gradient(90deg,var(--amber3),var(--amber));transition:width .5s ease;}
+.acf-stats{display:flex;justify-content:space-between;margin-top:8px;}
+.acf-stat-lbl{font-family:var(--fm);font-size:7px;color:var(--t3);letter-spacing:1px;}
+.acf-stat-val{font-family:var(--fd);font-size:14px;color:var(--amber);font-weight:700;}
+.acf-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+.acf-tag{font-family:var(--fm);font-size:8px;padding:2px 7px;border:1px solid var(--b1);color:var(--t3);}
+
+/* ══════════════════════════════════════════
+   PIPELINE SCREEN
+   ══════════════════════════════════════════ */
+.task-empty{text-align:center;padding:48px 20px;color:var(--t3);font-family:var(--fm);font-size:10px;letter-spacing:2px;line-height:2;}
+.task-card{
+  background:var(--card);border:1px solid var(--b0);
+  margin-bottom:10px;overflow:hidden;
+}
+.task-card-top{
+  padding:12px 14px;display:flex;align-items:flex-start;gap:10px;
+}
+.task-status-bar{
+  width:3px;align-self:stretch;flex-shrink:0;border-radius:2px;
+}
+.task-status-bar.done{background:var(--green);}
+.task-status-bar.running{background:var(--amber);animation:pulse-a 1s infinite;}
+.task-status-bar.failed{background:var(--red);}
+.task-status-bar.queued{background:var(--t3);}
+.task-main{flex:1;min-width:0;}
+.task-agent{font-family:var(--fm);font-size:8px;color:var(--t3);letter-spacing:1px;margin-bottom:4px;}
+.task-title{font-size:12px;color:var(--t1);font-weight:600;line-height:1.4;}
+.task-badge{
+  font-family:var(--fm);font-size:7px;letter-spacing:2px;
+  padding:3px 8px;border:1px solid;flex-shrink:0;
+}
+.task-badge.done{border-color:var(--green);color:var(--green);}
+.task-badge.running{border-color:var(--amber);color:var(--amber);}
+.task-badge.failed{border-color:var(--red);color:var(--red);}
+.task-badge.queued{border-color:var(--b1);color:var(--t3);}
+.task-pipeline{
+  display:flex;padding:8px 14px;gap:4px;border-top:1px solid var(--b0);
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.task-stage{
+  font-family:var(--fm);font-size:7px;letter-spacing:1px;
+  padding:3px 8px;border:1px solid var(--b0);color:var(--t3);
+  white-space:nowrap;flex-shrink:0;
+}
+.task-stage.done{border-color:var(--green);color:var(--green);}
+.task-stage.active{border-color:var(--amber);color:var(--amber);}
+.task-progress{height:3px;background:var(--deep);}
+.task-pfill{height:100%;background:linear-gradient(90deg,var(--amber3),var(--amber));transition:width .5s;}
+.task-score{
+  padding:8px 14px;border-top:1px solid var(--b0);
+  display:flex;align-items:center;gap:8px;
+}
+.task-output{
+  padding:8px 14px 12px;border-top:1px solid var(--b0);
+  font-family:var(--fm);font-size:9px;color:var(--t3);line-height:1.7;
+}
+
+/* ══════════════════════════════════════════
+   MEMORY SCREEN
+   ══════════════════════════════════════════ */
+.mem-header{padding:14px 16px;border-bottom:1px solid var(--b0);}
+.mem-header-title{font-family:var(--fd);font-size:13px;letter-spacing:2px;margin-bottom:4px;}
+.mem-header-desc{font-size:11px;color:var(--t3);line-height:1.6;}
+.mem-add-row{display:flex;gap:8px;padding:12px 16px;border-bottom:1px solid var(--b0);}
+.mem-add-key{flex:0.8;}
+.mem-add-val{flex:1.5;}
+.mem-add-btn{
+  font-family:var(--fd);font-size:8px;letter-spacing:1px;
+  background:var(--amber);color:#000;border:none;
+  padding:0 12px;cursor:pointer;white-space:nowrap;min-height:44px;
+}
+.mem-list{padding:12px 16px;}
+.mem-empty{font-family:var(--fm);font-size:10px;color:var(--t3);letter-spacing:2px;text-align:center;padding:32px;}
+.mem-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--b0);
+}
+.mem-pin-icon{font-size:12px;flex-shrink:0;margin-top:2px;}
+.mem-item-body{flex:1;min-width:0;}
+.mem-item-key{font-family:var(--fm);font-size:9px;color:var(--amber);letter-spacing:1px;margin-bottom:3px;}
+.mem-item-val{font-size:12px;color:var(--t2);line-height:1.5;}
+.mem-item-del{
+  font-size:16px;color:var(--t3);background:none;border:none;
+  cursor:pointer;padding:0 4px;flex-shrink:0;min-width:32px;min-height:32px;
+  display:flex;align-items:center;justify-content:center;
+}
+.mem-stats{
+  display:flex;gap:10px;padding:12px 16px;
+  border-top:1px solid var(--b0);
+}
+.mem-stat{
+  flex:1;padding:10px;background:var(--card);border:1px solid var(--b0);text-align:center;
+}
+.mem-stat-val{font-family:var(--fd);font-size:18px;color:var(--amber);font-weight:700;}
+.mem-stat-lbl{font-family:var(--fm);font-size:7px;color:var(--t3);letter-spacing:1px;margin-top:2px;}
+
+/* ══════════════════════════════════════════
+   LOGS SCREEN
+   ══════════════════════════════════════════ */
+.log-header{
+  padding:12px 16px;border-bottom:1px solid var(--b0);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.log-title{font-family:var(--fd);font-size:11px;letter-spacing:2px;color:var(--t1);}
+.log-clear{font-family:var(--fm);font-size:8px;letter-spacing:1px;color:var(--t3);background:none;border:1px solid var(--b0);padding:5px 10px;cursor:pointer;min-height:32px;}
+.log-feed{flex:1;overflow-y:auto;padding:12px 16px;-webkit-overflow-scrolling:touch;}
+.log-line{
+  font-family:var(--fm);font-size:10px;line-height:1.9;
+  display:flex;gap:10px;padding:1px 0;
+}
+.log-ts{color:var(--t3);flex-shrink:0;font-size:9px;}
+.log-txt{flex:1;}
+.log-line.success .log-txt{color:var(--green);}
+.log-line.info .log-txt{color:var(--cyan);}
+.log-line.warn .log-txt{color:var(--amber);}
+.log-line.plan .log-txt{color:var(--purple);}
+.log-line.reflect .log-txt{color:var(--amber2);}
+.log-line.default .log-txt{color:var(--t2);}
+.log-line.new{animation:slide-up .2s ease;}
+
+/* ══════════════════════════════════════════
+   METRICS TOP ROW
+   ══════════════════════════════════════════ */
+.metrics-strip{
+  display:flex;gap:0;border-bottom:1px solid var(--b0);flex-shrink:0;
+}
+.metric-m{
+  flex:1;padding:8px 10px;border-right:1px solid var(--b0);
+  background:rgba(12,9,25,.6);text-align:center;
+}
+.metric-m:last-child{border-right:none;}
+.metric-m-val{font-family:var(--fd);font-size:15px;font-weight:700;color:var(--amber);}
+.metric-m-lbl{font-family:var(--fm);font-size:6px;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+
+/* ══════════════════════════════════════════
+   SECTION LABEL
+   ══════════════════════════════════════════ */
+.slabel{font-family:var(--fd);font-size:7px;letter-spacing:4px;color:var(--amber);text-transform:uppercase;margin-bottom:6px;}
+.section-head{padding:14px 16px 0;flex-shrink:0;}
+
+/* CARD GENERIC */
+.card{background:var(--card);border:1px solid var(--b0);margin-bottom:10px;}
+.card-body{padding:14px 16px;}
+.card-title{font-family:var(--fd);font-size:8px;letter-spacing:3px;color:var(--amber);text-transform:uppercase;margin-bottom:10px;}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══════════ LANDING ══════════ -->
+<div id="landing">
+  <div class="land-eyebrow">⬡ Operation Shell Break · Mobile</div>
+  <div class="land-orbit">
+    <svg width="180" height="180" viewBox="0 0 180 180" style="overflow:visible">
+      <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(245,166,35,.08)" stroke-width="1"/>
+      <circle cx="90" cy="90" r="56" fill="none" stroke="rgba(245,166,35,.05)" stroke-width="1"/>
+      <circle cx="90" cy="90" r="34" fill="none" stroke="rgba(245,166,35,.12)" stroke-width="1">
+        <animateTransform attributeName="transform" type="rotate" from="0 90 90" to="360 90 90" dur="15s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="90" cy="90" r="20" fill="none" stroke="rgba(0,229,255,.15)" stroke-width="1">
+        <animateTransform attributeName="transform" type="rotate" from="360 90 90" to="0 90 90" dur="10s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Agent nodes -->
+      <circle cx="90" cy="12" r="10" fill="#11101F" stroke="#39FF6E" stroke-width="1.5"/><text x="90" y="17" text-anchor="middle" font-size="9" fill="#39FF6E">◈</text>
+      <circle cx="156" cy="57" r="10" fill="#11101F" stroke="#2A2248" stroke-width="1.5"/><text x="156" y="62" text-anchor="middle" font-size="9" fill="#554E7A">◎</text>
+      <circle cx="156" cy="123" r="10" fill="#11101F" stroke="#2A2248" stroke-width="1.5"/><text x="156" y="128" text-anchor="middle" font-size="9" fill="#554E7A">◐</text>
+      <circle cx="90" cy="168" r="10" fill="#11101F" stroke="#2A2248" stroke-width="1.5"/><text x="90" y="173" text-anchor="middle" font-size="9" fill="#554E7A">⬡</text>
+      <circle cx="24" cy="123" r="10" fill="#11101F" stroke="#2A2248" stroke-width="1.5"/><text x="24" y="128" text-anchor="middle" font-size="9" fill="#554E7A">◆</text>
+      <circle cx="24" cy="57" r="10" fill="#11101F" stroke="#2A2248" stroke-width="1.5"/><text x="24" y="62" text-anchor="middle" font-size="9" fill="#554E7A">◉</text>
+      <!-- Core -->
+      <rect x="72" y="78" width="36" height="24" fill="#11101F" stroke="rgba(245,166,35,.3)" stroke-width="1"/>
+      <text x="90" y="90" text-anchor="middle" font-family="Orbitron,monospace" font-size="8" font-weight="900" fill="#F5A623">DIRT</text>
+      <text x="90" y="99" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="5" fill="#4A4468">AI CORE</text>
+      <circle cx="90" cy="90" r="2.5" fill="#F5A623"><animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/></circle>
+    </svg>
+  </div>
+  <div class="land-title glow-a">DIRT</div>
+  <div class="land-sub">Doing Innovative Research on Technology</div>
+  <p class="land-desc">6 autonomous AI agents running your business 24/7. In your pocket.</p>
+  <div class="land-badges">
+    <div class="land-badge primary">claude-opus-4-7</div>
+    <div class="land-badge fallback">sonnet-4-6 fallback</div>
+  </div>
+  <button class="land-btn" onclick="showOnboard()">INITIALIZE DIRT →</button>
+  <button class="land-demo" onclick="launchDemo()">ENTER DEMO</button>
+</div>
+
+<!-- ══════════ ONBOARD ══════════ -->
+<div id="onboard">
+  <div class="ob-topbar">
+    <div class="ob-logo">⬡ DIRT</div>
+    <div class="ob-step-indicator" id="ob-step-text">STEP 1 OF 2</div>
+  </div>
+  <div class="ob-progress"><div class="ob-progress-fill" id="ob-progress" style="width:50%"></div></div>
+
+  <div class="ob-body" id="ob-body">
+    <!-- Step 1 or 2 rendered here -->
+  </div>
+
+  <div class="ob-footer">
+    <button class="ob-btn-back" id="ob-back" onclick="obBack()">← BACK</button>
+    <button class="ob-btn-next" id="ob-next" onclick="obNext()">CONTINUE →</button>
+  </div>
+</div>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div id="dashboard">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-logo">⬡ DIRT</div>
+    <div class="top-status">
+      <div class="top-dot"></div>
+      <div class="top-online">LIVE</div>
+      <div class="top-model">opus-4-7</div>
+      <div class="top-credits" id="top-credits">45 CR</div>
+    </div>
+  </div>
+
+  <!-- AGENT STRIP -->
+  <div class="agent-strip" id="agent-strip">
+    <!-- Populated by JS -->
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics-strip" id="metrics-strip">
+    <div class="metric-m"><div class="metric-m-val" id="m-tasks">0</div><div class="metric-m-lbl">Dispatched</div></div>
+    <div class="metric-m"><div class="metric-m-val" id="m-done">0</div><div class="metric-m-lbl">Done</div></div>
+    <div class="metric-m"><div class="metric-m-val" id="m-quality">—</div><div class="metric-m-lbl">Avg Score</div></div>
+    <div class="metric-m"><div class="metric-m-val" id="m-memory">0</div><div class="metric-m-lbl">Memories</div></div>
+  </div>
+
+  <!-- SCREENS -->
+  <div class="screen-area">
+
+    <!-- COMMAND -->
+    <div class="screen active" id="screen-command">
+      <div class="chat-header">
+        <div class="chat-header-icon">◈</div>
+        <div class="chat-header-info">
+          <div class="chat-header-name">APEX · CEO AGENT</div>
+          <div class="chat-header-model" id="chat-model-label">claude-opus-4-7 → Plan→Execute→Reflect</div>
+        </div>
+        <div class="pipeline-mini" id="pipeline-mini">
+          <div class="pmini">PLN</div><div class="pmini-sep">›</div>
+          <div class="pmini">EXE</div><div class="pmini-sep">›</div>
+          <div class="pmini">REF</div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-empty" id="chat-empty">
+          <div class="empty-icon">◈</div>
+          <div class="empty-title">APEX READY</div>
+          <div class="empty-desc">Give a directive. APEX plans it, routes it to the right specialist, scores the output, and auto-refines if needed.</div>
+          <div class="suggestions">
+            <button class="suggestion" onclick="setFab('Research top dental automation competitors')">Research dental automation competitors</button>
+            <button class="suggestion" onclick="setFab('Write cold email sequence for med spa outreach')">Write cold email for med spa outreach</button>
+            <button class="suggestion" onclick="setFab('Build 30-day LinkedIn content calendar')">Build 30-day LinkedIn calendar</button>
+            <button class="suggestion" onclick="setFab('Analyze best pricing for my company')">Analyze best pricing strategy</button>
+          </div>
+        </div>
+      </div>
+      <div class="fab-area">
+        <textarea class="fab-input" id="fab-input" rows="1"
+          placeholder="Give APEX a directive..."
+          oninput="autoResize(this)"
+          onkeydown="fabKeyDown(event)"></textarea>
+        <button class="fab-btn" id="fab-btn" onclick="fabExecute()">
+          <div class="fab-ripple"></div>
+          <span id="fab-icon">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- AGENTS -->
+    <div class="screen" id="screen-agents">
+      <div class="section-head"><div class="slabel">Agent Fleet</div></div>
+      <div class="screen-pad" id="agents-list"><!-- populated --></div>
+    </div>
+
+    <!-- PIPELINE -->
+    <div class="screen" id="screen-pipeline">
+      <div class="section-head"><div class="slabel">Task Pipeline</div></div>
+      <div class="screen-pad" id="pipeline-list"><!-- populated --></div>
+    </div>
+
+    <!-- MEMORY -->
+    <div class="screen" id="screen-memory" style="display:none">
+      <div class="mem-header">
+        <div class="slabel">Memory Store</div>
+        <div class="mem-header-title">Pinned Intelligence</div>
+        <div class="mem-header-desc">Facts pinned here inject into every agent call. Never decays.</div>
+      </div>
+      <div class="mem-add-row">
+        <input class="ob-input mem-add-key" id="mem-key" placeholder="Key" style="flex:1"/>
+        <input class="ob-input mem-add-val" id="mem-val" placeholder="Value" style="flex:1.8"/>
+        <button class="mem-add-btn" onclick="addMemManual()">PIN</button>
+      </div>
+      <div class="mem-list" id="mem-list"><!-- populated --></div>
+      <div class="mem-stats">
+        <div class="mem-stat"><div class="mem-stat-val" id="ms-pinned">0</div><div class="mem-stat-lbl">PINNED</div></div>
+        <div class="mem-stat"><div class="mem-stat-val" id="ms-session">0</div><div class="mem-stat-lbl">SESSION</div></div>
+        <div class="mem-stat"><div class="mem-stat-val" id="ms-total">0</div><div class="mem-stat-lbl">TOTAL</div></div>
+      </div>
+    </div>
+
+    <!-- LOGS -->
+    <div class="screen" id="screen-logs" style="display:none;flex-direction:column">
+      <div class="log-header">
+        <div class="log-title">LIVE ACTIVITY LOG</div>
+        <button class="log-clear" onclick="clearLogs()">CLEAR</button>
+      </div>
+      <div class="log-feed" id="log-feed"><!-- populated --></div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" id="nav-command" onclick="switchTab('command')">
+      <div class="nav-icon">◈</div>
+      <div class="nav-label">Command</div>
+    </button>
+    <button class="nav-item" id="nav-agents" onclick="switchTab('agents')">
+      <div class="nav-icon">⬡</div>
+      <div class="nav-label">Agents</div>
+    </button>
+    <button class="nav-item" id="nav-pipeline" onclick="switchTab('pipeline')">
+      <div class="nav-icon">◎</div>
+      <div class="nav-label">Pipeline</div>
+      <div class="nav-badge" id="task-badge" style="display:none">0</div>
+    </button>
+    <button class="nav-item" id="nav-memory" onclick="switchTab('memory')">
+      <div class="nav-icon">◉</div>
+      <div class="nav-label">Memory</div>
+    </button>
+    <button class="nav-item" id="nav-logs" onclick="switchTab('logs')">
+      <div class="nav-icon">▸</div>
+      <div class="nav-label">Logs</div>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+     ══════════════════════════════════════════ -->
+<script>
+// ── CONSTANTS ────────────────────────────────────────────────────────────────
+const PRIMARY  = 'claude-opus-4-7';
+const FALLBACK = 'claude-sonnet-4-6';
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let S = {
+  view: 'landing',
+  obStep: 1,
+  profile: {name:'',mission:'',industry:'',stage:''},
+  agents: [
+    {id:'ceo',      name:'APEX',   role:'CEO · Orchestrator',      model:PRIMARY,  status:'active', done:0, icon:'◈', kw:['strategy','plan','analyze','decide','architect','prioritize']},
+    {id:'research', name:'SCOUT',  role:'Research & Intelligence', model:FALLBACK, status:'idle',   done:0, icon:'◎', kw:['research','find','market','competitor','trend','data','investigate']},
+    {id:'marketing',name:'SIGNAL', role:'Marketing & Content',     model:FALLBACK, status:'idle',   done:0, icon:'◐', kw:['marketing','email','content','social','copy','brand','campaign','outreach','linkedin']},
+    {id:'dev',      name:'FORGE',  role:'Dev & Engineering',       model:FALLBACK, status:'idle',   done:0, icon:'⬡', kw:['code','build','develop','api','database','bug','deploy','feature']},
+    {id:'sales',    name:'VECTOR', role:'Sales & Leads',           model:FALLBACK, status:'idle',   done:0, icon:'◆', kw:['sales','lead','pitch','close','funnel','crm','prospect','revenue']},
+    {id:'ops',      name:'RELAY',  role:'Operations & Automation', model:FALLBACK, status:'idle',   done:0, icon:'◉', kw:['automate','workflow','process','ops','system','schedule','integrate']},
+  ],
+  messages: [],
+  tasks: [],
+  logs: [],
+  memory: [],
+  credits: 45,
+  totalTasks: 0,
+  completedTasks: 0,
+  qualitySum: 0,
+  avgQuality: 0,
+  loading: false,
+  currentTab: 'command',
+};
+let logId = 100;
+function ts(){ return new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+
+// ── ROUTING ──────────────────────────────────────────────────────────────────
+function route(input){
+  const l = input.toLowerCase();
+  for(const a of S.agents){
+    if(a.id==='ceo') continue;
+    if(a.kw.some(k=>l.includes(k))) return a;
+  }
+  return S.agents[0];
+}
+
+// ── MEMORY ───────────────────────────────────────────────────────────────────
+function memAdd(key,val,pin=false){
+  S.memory = S.memory.filter(m=>m.key!==key);
+  S.memory.push({key,val,pin,ts:ts()});
+  if(S.memory.length>30) S.memory=[...S.memory.filter(m=>m.pin),...S.memory.filter(m=>!m.pin).slice(-20)];
+  renderMemory(); updateMetrics();
+}
+function memCtx(){
+  const pinned=S.memory.filter(m=>m.pin);
+  const recent=S.memory.filter(m=>!m.pin).slice(-4);
+  const mems=[...pinned,...recent];
+  if(!mems.length) return '';
+  return '\n\nACTIVE MEMORY:\n'+mems.map(m=>`• [${m.key}]: ${m.val}`).join('\n');
+}
+function addMemManual(){
+  const k=document.getElementById('mem-key')?.value.trim();
+  const v=document.getElementById('mem-val')?.value.trim();
+  if(k&&v){ memAdd(k,v,true); document.getElementById('mem-key').value=''; document.getElementById('mem-val').value=''; }
+}
+
+// ── LOG ───────────────────────────────────────────────────────────────────────
+function log(type,text){ S.logs.push({id:++logId,type,text,ts:ts()}); if(S.logs.length>100) S.logs=S.logs.slice(-80); renderLogs(); }
+
+// ── CLAUDE API (proxied through DIRT backend) ────────────────────────────────
+async function callClaude(sys,msgs,model=PRIMARY){
+  try{
+    const r=await fetch('/app/api/proxy',{
+      method:'POST',
+      credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model,max_tokens:1000,system:sys,messages:msgs.map(m=>({role:m.role,content:m.content}))})
+    });
+    if(!r.ok){
+      if(r.status===401){ window.location.href='/app'; throw new Error('Not authenticated'); }
+      if(model===PRIMARY){ log('warn','[SYS] Opus 4.7 rate limited → Sonnet 4.6'); return callClaude(sys,msgs,FALLBACK); }
+      throw new Error('API '+r.status);
+    }
+    const d=await r.json();
+    return d.content?.find(b=>b.type==='text')?.text||'';
+  }catch(e){
+    if(model===PRIMARY&&!e.message?.includes('authenticated')) return callClaude(sys,msgs,FALLBACK);
+    throw e;
+  }
+}
+
+async function scoreOutput(task,output,agent){
+  try{
+    const p=`Score this agent output 0-100 on 4 dimensions. Task: "${task}". Output: "${output.slice(0,600)}". Reply ONLY with JSON: {"accuracy":85,"completeness":90,"actionability":78,"clarity":88,"summary":"One sentence."}`;
+    const raw=await callClaude('Output ONLY valid JSON. No other text.',[{role:'user',content:p}],FALLBACK);
+    return JSON.parse(raw.replace(/```json|```/g,'').trim());
+  }catch{ return {accuracy:75,completeness:75,actionability:75,clarity:75,summary:'Quality check unavailable.'}; }
+}
+
+async function extractMem(task,output){
+  try{
+    const p=`Extract key facts to remember from this. Task:"${task}" Output:"${output.slice(0,400)}". Reply ONLY with JSON array (max 2): [{"key":"label","val":"fact under 60 chars","pin":true}]`;
+    const raw=await callClaude('JSON array only.',[{role:'user',content:p}],FALLBACK);
+    const items=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    if(Array.isArray(items)) items.forEach(i=>memAdd(i.key,i.val,i.pin));
+  }catch{}
+}
+
+// ── DISPATCH ─────────────────────────────────────────────────────────────────
+async function dispatch(input){
+  if(!input.trim()||S.credits<1||S.loading) return;
+  S.loading=true;
+  S.credits--;
+  updateTopBar();
+
+  const agent=route(input);
+  const taskId='t'+Date.now();
+  S.tasks.unshift({id:taskId,title:input.slice(0,65),agent:agent.name,status:'queued',progress:0,stage:'plan',scores:null,output:''});
+  S.totalTasks++;
+
+  agent.status='busy';
+  S.messages.push({role:'user',content:input});
+  hideSuggestions();
+  renderMessages();
+  renderAgentStrip();
+  renderPipeline();
+  showTyping('APEX: Planning...');
+
+  const co=`Company: ${S.profile.name||'N/A'} | Industry: ${S.profile.industry||'General'} | Stage: ${S.profile.stage||'Early'} | Mission: ${S.profile.mission||'N/A'}`;
+  const mc=memCtx();
+
+  log('plan',`[APEX→${agent.name}] Planning: "${input.slice(0,40)}..."`);
+  updateTask(taskId,{status:'running',progress:15,stage:'plan'});
+  updatePipelineMini('plan');
+
+  // PLAN
+  const planSys=`You are APEX, CEO of DIRT. ${co}${mc}. Create a 3-step plan:
+STEP 1: [action]
+STEP 2: [action]
+STEP 3: [deliverable]
+ASSIGNED TO: ${agent.name} (${agent.role})`;
+  let plan='';
+  try{ plan=await callClaude(planSys,[{role:'user',content:input}],PRIMARY); }
+  catch{ plan=`STEP 1: Analyze\nSTEP 2: Research\nSTEP 3: Deliver\nASSIGNED TO: ${agent.name}`; }
+
+  log('info',`[APEX] Plan done → ${agent.name} (${agent.model})`);
+  updateTask(taskId,{progress:35,stage:'execute'});
+  updateTyping(`${agent.name}: Executing...`);
+  updatePipelineMini('execute');
+
+  // EXECUTE
+  const execSys=`You are ${agent.name}, an elite autonomous AI agent — ${agent.role} — within DIRT.
+${co}${mc}
+APEX Plan: ${plan}
+Execute step by step. Use Chain-of-Thought: reason → execute → deliver. Be specific, actionable, and complete. No filler.`;
+  let output='';
+  try{
+    output=await callClaude(execSys,[...S.messages.slice(-5)],agent.model);
+    log('success',`[${agent.name}] Execution complete`);
+  }catch(e){
+    output=`⚠️ Execution error. Please try again or contact support. Model: ${agent.model}`;
+    updateTask(taskId,{status:'failed',progress:0,stage:'failed'});
+    agent.status='idle';
+    S.messages.push({role:'assistant',content:output,agentId:agent.id,plan:'',scores:null});
+    S.loading=false;
+    hideTyping(); renderMessages(); renderAgentStrip(); scrollChat();
+    return;
+  }
+  updateTask(taskId,{progress:68,stage:'reflect'});
+  updateTyping('Judge: Scoring quality...');
+  updatePipelineMini('reflect');
+  log('reflect',`[JUDGE] Scoring output quality...`);
+
+  // SCORE + EXTRACT
+  const [scores]=await Promise.all([scoreOutput(input,output,agent),extractMem(input,output)]);
+  const avg=Math.round((scores.accuracy+scores.completeness+scores.actionability+scores.clarity)/4);
+  S.qualitySum+=avg; S.completedTasks++; S.avgQuality=Math.round(S.qualitySum/S.completedTasks);
+
+  if(avg<65){
+    log('warn',`[JUDGE] Score ${avg}/100 — auto-refining...`);
+    updateTyping('Judge: Refining output...');
+    try{
+      const refSys=`You are ${agent.name}. Your output scored ${avg}/100. Issues: ${scores.summary}. Rewrite with higher accuracy, completeness, and actionability.`;
+      output=await callClaude(refSys,[...S.messages.slice(-3),{role:'assistant',content:output},{role:'user',content:'Improve this.'}],agent.model);
+      log('reflect','[JUDGE] Refinement complete ↑');
+    }catch{ log('warn','[JUDGE] Refinement skipped.'); }
+  }
+
+  // FINALIZE
+  agent.status='idle'; agent.done++;
+  updateTask(taskId,{status:'done',progress:100,stage:'done',scores,output:output.slice(0,200)+'...'});
+  log('success',`[${agent.name}] Done. Quality: ${avg}/100 ✓`);
+  log('success',`[APEX] Directive executed. ${S.credits} credits remaining.`);
+
+  S.messages.push({role:'assistant',content:output,agentId:agent.id,plan,scores,avg});
+  S.loading=false;
+
+  if(S.profile.name) memAdd('company',S.profile.name,true);
+  if(S.profile.industry) memAdd('industry',S.profile.industry,true);
+
+  hideTyping(); renderMessages(); renderAgentStrip(); renderPipeline();
+  updateMetrics(); updateTopBar(); scrollChat();
+  updatePipelineMini('done');
+}
+
+function updateTask(id,patch){ const i=S.tasks.findIndex(t=>t.id===id); if(i>=0) Object.assign(S.tasks[i],patch); renderPipeline(); }
+
+// ── RENDER FUNCTIONS ─────────────────────────────────────────────────────────
+function renderAgentStrip(){
+  const el=document.getElementById('agent-strip'); if(!el) return;
+  el.innerHTML=S.agents.map(a=>`
+  <div class="agent-chip ${a.status==='active'?'active-chip':a.status==='busy'?'busy-chip':''}">
+    <div class="agent-chip-icon">${a.icon}</div>
+    <div class="agent-chip-name">${a.name}</div>
+    <div class="agent-chip-dot ${a.status==='active'?'a':a.status==='busy'?'b':'i'}"></div>
+  </div>`).join('');
+}
+
+function renderAgents(){
+  const el=document.getElementById('agents-list'); if(!el) return;
+  el.innerHTML=S.agents.map(a=>`
+  <div class="agent-card-full">
+    <div class="acf-top">
+      <div class="acf-icon">${a.icon}</div>
+      <div class="acf-info">
+        <div class="acf-name">${a.name}</div>
+        <div class="acf-role">${a.role}</div>
+      </div>
+      <div class="acf-status ${a.status}">${a.status.toUpperCase()}</div>
+    </div>
+    <div class="acf-body">
+      <div class="acf-model ${a.model===PRIMARY?'p':'f'}">${a.model}</div>
+      <div class="acf-ptrack"><div class="acf-pfill" style="width:${Math.min(100,a.done*12)}%"></div></div>
+      <div class="acf-stats">
+        <div><div class="acf-stat-lbl">TASKS DONE</div><div class="acf-stat-val">${a.done}</div></div>
+        <div><div class="acf-stat-lbl">STATUS</div><div class="acf-stat-val" style="font-size:10px;color:${a.status==='active'?'var(--green)':a.status==='busy'?'var(--cyan)':'var(--t3)'}">${a.status.toUpperCase()}</div></div>
+      </div>
+      <div class="acf-tags">${a.kw.slice(0,4).map(k=>`<span class="acf-tag">${k}</span>`).join('')}</div>
+    </div>
+  </div>`).join('');
+}
+
+function renderMessages(){
+  const el=document.getElementById('chat-messages'); if(!el) return;
+  const empty=document.getElementById('chat-empty');
+  if(S.messages.length===0){ if(empty) empty.style.display='flex'; return; }
+  if(empty) empty.style.display='none';
+  const frag=document.createDocumentFragment();
+  S.messages.forEach(m=>{
+    const div=document.createElement('div');
+    if(m.role==='user'){
+      div.className='msg user slide-up';
+      div.textContent=m.content;
+    } else {
+      const ag=S.agents.find(a=>a.id===m.agentId);
+      const avg=m.avg;
+      const sc=m.scores;
+      const cls=avg>=80?'high':avg>=60?'mid':'low';
+      div.className='msg assistant slide-up';
+      div.innerHTML=`<div class="msg-agent-label">◈ ${ag?ag.name+' · '+ag.role:'DIRT AGENT'}</div>
+      <div class="msg-content">${esc(m.content)}</div>
+      ${sc?`<div class="score-mini">
+        <div class="score-num ${cls}">${avg}</div>
+        <div class="score-bars">
+          ${[['ACC',sc.accuracy],['COM',sc.completeness],['ACT',sc.actionability],['CLR',sc.clarity]].map(([l,v])=>`
+          <div class="sbar"><div class="sbar-t">${l}</div><div class="sbar-tr"><div class="sbar-tf" style="width:${v}%;background:${v>=80?'var(--green)':v>=60?'var(--amber)':'var(--red)'}"></div></div></div>`).join('')}
+          <div style="font-family:var(--fm);font-size:8px;color:var(--t3);margin-top:3px;line-height:1.5">${esc(sc.summary||'')}</div>
+        </div>
+      </div>`:''}
+      <div class="msg-stages">
+        <span class="msg-stage ms-plan">PLAN ✓</span>
+        <span class="msg-stage ms-exec">EXEC ✓</span>
+        <span class="msg-stage ms-reflect">JUDGE ✓</span>
+      </div>`;
+    }
+    frag.appendChild(div);
+  });
+  // Remove old messages (keep empty placeholder if needed)
+  while(el.children.length>1) el.removeChild(el.lastChild);
+  el.appendChild(frag);
+}
+
+function hideSuggestions(){ const e=document.getElementById('chat-empty'); if(e) e.style.display='none'; }
+
+let typingEl=null;
+function showTyping(stage='Processing'){
+  hideTyping();
+  const el=document.getElementById('chat-messages'); if(!el) return;
+  typingEl=document.createElement('div');
+  typingEl.className='typing-msg';
+  typingEl.innerHTML=`<span class="fm amber" style="font-size:11px">◈</span><div class="typing-stage" id="typing-stage">${stage}</div><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span>`;
+  el.appendChild(typingEl);
+  scrollChat();
+}
+function updateTyping(stage){ const e=document.getElementById('typing-stage'); if(e) e.textContent=stage; }
+function hideTyping(){ if(typingEl){ typingEl.remove(); typingEl=null; } }
+
+function scrollChat(){ setTimeout(()=>{ const el=document.getElementById('chat-messages'); if(el) el.scrollTop=el.scrollHeight; },80); }
+
+function updatePipelineMini(active){
+  const el=document.getElementById('pipeline-mini'); if(!el) return;
+  const stages=['plan','execute','reflect','done'];
+  const labels=['PLN','EXE','REF','✓'];
+  const idx=stages.indexOf(active);
+  el.innerHTML=stages.map((s,i)=>`
+    ${i>0?'<div class="pmini-sep">›</div>':''}
+    <div class="pmini ${i<idx?'done':i===idx?'run':''}">${labels[i]}</div>`).join('');
+}
+
+function renderPipeline(){
+  const el=document.getElementById('pipeline-list'); if(!el) return;
+  const badge=document.getElementById('task-badge');
+  const running=S.tasks.filter(t=>t.status==='running'||t.status==='queued').length;
+  if(badge){ badge.style.display=running>0?'flex':'none'; badge.textContent=running; }
+  if(S.tasks.length===0){
+    el.innerHTML=`<div class="task-empty">NO TASKS YET<br/><span style="color:var(--t3);font-size:8px">Switch to Command and give APEX a directive</span></div>`;
+    return;
+  }
+  el.innerHTML=S.tasks.map(t=>{
+    const sc=t.scores; const avg=sc?Math.round((sc.accuracy+sc.completeness+sc.actionability+sc.clarity)/4):null;
+    const cls=avg>=80?'high':avg>=60?'mid':'low';
+    return `<div class="task-card">
+      <div class="task-progress"><div class="task-pfill" style="width:${t.progress}%"></div></div>
+      <div class="task-card-top">
+        <div class="task-status-bar ${t.status}"></div>
+        <div class="task-main">
+          <div class="task-agent">AGENT: ${t.agent}</div>
+          <div class="task-title">${esc(t.title)}</div>
+        </div>
+        ${avg?`<div class="score-num ${cls}" style="width:32px;height:32px;font-size:9px">${avg}</div>`:''}
+        <div class="task-badge ${t.status}">${t.status.toUpperCase()}</div>
+      </div>
+      <div class="task-pipeline">
+        ${['① Plan','② Execute','③ Reflect','④ Done'].map((s,i)=>{
+          const stageMap={plan:0,execute:1,reflect:2,done:3,failed:-1};
+          const cur=stageMap[t.stage]??0;
+          return `<div class="task-stage ${i<cur?'done':i===cur?'active':''}">${s}</div>`;
+        }).join('')}
+      </div>
+      ${t.output?`<div class="task-output">${esc(t.output)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderMemory(){
+  const el=document.getElementById('mem-list'); if(!el) return;
+  const pin=S.memory.filter(m=>m.pin).length;
+  const sess=S.memory.filter(m=>!m.pin).length;
+  document.getElementById('ms-pinned').textContent=pin;
+  document.getElementById('ms-session').textContent=sess;
+  document.getElementById('ms-total').textContent=S.memory.length;
+  document.getElementById('m-memory').textContent=S.memory.length;
+  if(S.memory.length===0){
+    el.innerHTML='<div class="mem-empty">NO MEMORIES YET<br/><span style="font-size:8px;color:var(--t3);letter-spacing:1px">Auto-extracted after each task or pin manually above</span></div>';
+    return;
+  }
+  el.innerHTML=S.memory.map((m,i)=>`
+  <div class="mem-item">
+    <div class="mem-pin-icon">${m.pin?'📌':'◉'}</div>
+    <div class="mem-item-body">
+      <div class="mem-item-key">${esc(m.key)}</div>
+      <div class="mem-item-val">${esc(m.val)}</div>
+    </div>
+    <button class="mem-item-del" onclick="removeMem(${i})">×</button>
+  </div>`).join('');
+}
+function removeMem(i){ S.memory.splice(i,1); renderMemory(); updateMetrics(); }
+
+function renderLogs(){
+  const el=document.getElementById('log-feed'); if(!el) return;
+  el.innerHTML=S.logs.map((l,i)=>`
+  <div class="log-line ${l.type} ${i===S.logs.length-1?'new':''}">
+    <span class="log-ts">${l.ts}</span>
+    <span class="log-txt">${esc(l.text)}</span>
+  </div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+function clearLogs(){ S.logs=[]; renderLogs(); }
+
+function updateMetrics(){
+  document.getElementById('m-tasks').textContent=S.totalTasks;
+  document.getElementById('m-done').textContent=S.completedTasks;
+  document.getElementById('m-quality').textContent=S.avgQuality||(S.completedTasks?S.avgQuality:'—');
+  document.getElementById('m-memory').textContent=S.memory.length;
+}
+function updateTopBar(){
+  document.getElementById('top-credits').textContent=S.credits+' CR';
+}
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+function switchTab(tab){
+  S.currentTab=tab;
+  ['command','agents','pipeline','memory','logs'].forEach(t=>{
+    const s=document.getElementById(`screen-${t}`);
+    const n=document.getElementById(`nav-${t}`);
+    if(s){ s.className='screen'+(t===tab?' active':''); if(t==='memory'||t==='logs') s.style.display=t===tab?'flex':'none'; }
+    if(n) n.className='nav-item'+(t===tab?' active':'');
+  });
+  if(tab==='agents') renderAgents();
+  if(tab==='pipeline') renderPipeline();
+  if(tab==='memory') renderMemory();
+  if(tab==='logs') renderLogs();
+}
+
+// ── FAB ───────────────────────────────────────────────────────────────────────
+function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+function setFab(val){ const el=document.getElementById('fab-input'); if(el){ el.value=val; el.focus(); autoResize(el); } }
+function fabKeyDown(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); fabExecute(); } }
+function fabExecute(){
+  const el=document.getElementById('fab-input');
+  const btn=document.getElementById('fab-btn');
+  const icon=document.getElementById('fab-icon');
+  if(!el||S.loading||S.credits<1) return;
+  const val=el.value.trim(); if(!val) return;
+  el.value=''; el.style.height='auto';
+  btn.classList.add('loading'); icon.textContent='…';
+  dispatch(val).finally(()=>{ btn.classList.remove('loading'); icon.textContent='→'; });
+}
+
+// ── ONBOARD ───────────────────────────────────────────────────────────────────
+let obStep=1;
+function showOnboard(){
+  document.getElementById('landing').classList.add('exit');
+  setTimeout(()=>{ document.getElementById('landing').style.display='none'; document.getElementById('onboard').classList.add('show'); obStep=1; renderObStep(); },500);
+}
+function renderObStep(){
+  const body=document.getElementById('ob-body');
+  const back=document.getElementById('ob-back');
+  const next=document.getElementById('ob-next');
+  document.getElementById('ob-step-text').textContent=`STEP ${obStep} OF 2`;
+  document.getElementById('ob-progress').style.width=obStep===1?'50%':'100%';
+  back.style.display=obStep===1?'none':'block';
+  next.textContent=obStep===2?'LAUNCH DIRT →':'CONTINUE →';
+  if(obStep===1){
+    body.innerHTML=`
+    <div class="ob-title">Your Info</div>
+    <div class="ob-desc">DIRT's agents use your company context for every task.</div>
+    <div class="ob-field"><label class="ob-label">COMPANY NAME</label><input class="ob-input" id="ob-name" placeholder="e.g. NexGen Dental AI" value="${esc(S.profile.name||'')}"/></div>
+    <div class="ob-field"><label class="ob-label">INDUSTRY</label><input class="ob-input" id="ob-industry" placeholder="e.g. Healthcare, SaaS, Crypto" value="${esc(S.profile.industry||'')}"/></div>`;
+  } else {
+    body.innerHTML=`
+    <div class="ob-title">Your Mission</div>
+    <div class="ob-desc">Be specific — agents perform better with real context.</div>
+    <div class="ob-field"><label class="ob-label">COMPANY STAGE</label><input class="ob-input" id="ob-stage" placeholder="e.g. Pre-revenue, $10K MRR" value="${esc(S.profile.stage||'')}"/></div>
+    <div class="ob-field"><label class="ob-label">MISSION (1–2 sentences)</label><textarea class="ob-input" id="ob-mission" rows="4" placeholder="e.g. We help dental offices recover missed-call revenue with AI automation.">${esc(S.profile.mission||'')}</textarea></div>`;
+  }
+}
+function obBack(){ if(obStep>1){ obStep--; renderObStep(); } else { document.getElementById('onboard').classList.remove('show'); document.getElementById('landing').style.display='flex'; document.getElementById('landing').classList.remove('exit'); } }
+function obNext(){
+  if(obStep===1){
+    S.profile.name=document.getElementById('ob-name')?.value.trim()||'';
+    S.profile.industry=document.getElementById('ob-industry')?.value.trim()||'';
+    obStep=2; renderObStep();
+  } else {
+    S.profile.stage=document.getElementById('ob-stage')?.value.trim()||'';
+    S.profile.mission=document.getElementById('ob-mission')?.value.trim()||'';
+    if(S.profile.name) memAdd('company',S.profile.name,true);
+    if(S.profile.industry) memAdd('industry',S.profile.industry,true);
+    launchDashboard();
+  }
+}
+function launchDemo(){ launchDashboard(); }
+function launchDashboard(){
+  document.getElementById('landing').style.display='none';
+  document.getElementById('onboard').classList.remove('show');
+  document.getElementById('dashboard').classList.add('show');
+  initDashboard();
+}
+function initDashboard(){
+  log('info','[APEX] DIRT mobile initialized. All agents online.');
+  log('success','[SYS] Primary: claude-opus-4-7 connected.');
+  log('success','[SYS] Fallback: claude-sonnet-4-6 ready.');
+  log('success','[SYS] Plan→Execute→Reflect pipeline armed.');
+  log('info','[SYS] LLM-as-judge quality scorer active.');
+  log('warn','[APEX] Awaiting first directive.');
+  // Load real user data from backend
+  fetch('/app/api/me',{credentials:'include'}).then(r=>{
+    if(!r.ok){ window.location.href='/app'; return; }
+    return r.json();
+  }).then(u=>{
+    if(!u) return;
+    S.credits=u.credits||45;
+    if(u.companyName&&!S.profile.name) S.profile.name=u.companyName;
+    if(u.industry&&!S.profile.industry) S.profile.industry=u.industry;
+    if(u.stage&&!S.profile.stage) S.profile.stage=u.stage;
+    if(u.name) memAdd('user',u.name,true);
+    if(u.companyName) memAdd('company',u.companyName,true);
+    if(u.industry) memAdd('industry',u.industry,true);
+    updateTopBar(); updateMetrics();
+    log('success',`[SYS] Account: ${u.email} · ${u.credits} credits remaining.`);
+  }).catch(()=>{ window.location.href='/app'; });
+  renderAgentStrip();
+  renderAgents();
+  renderPipeline();
+  renderMemory();
+  renderLogs();
+  updateMetrics();
+  updateTopBar();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function esc(s=''){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderMessages();
+</script>
+</body>
+</html>

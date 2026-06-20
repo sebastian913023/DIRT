@@ -66,6 +66,10 @@ app.get('/checkout', (req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'checkout.html'))
 );
 
+app.get('/mobile', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'mobile.html'))
+);
+
 app.get('/success', async (req, res) => {
   let email = '';
   try {

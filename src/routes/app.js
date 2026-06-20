@@ -317,4 +317,29 @@ router.get('/app/api/stream', requireUser, (req, res) => {
   });
 });
 
+// ── ANTHROPIC PROXY (for mobile app) ─────────────────────────────────────────
+router.post('/app/api/proxy', requireUser, async (req, res) => {
+  const anthropic = require('../anthropic');
+  const { model, messages, system, max_tokens } = req.body;
+
+  const ALLOWED_MODELS = ['claude-opus-4-7', 'claude-opus-4-8', 'claude-sonnet-4-6', 'claude-haiku-4-5-20251001'];
+  const safeModel = ALLOWED_MODELS.includes(model) ? model : 'claude-sonnet-4-6';
+
+  try {
+    const msg = await anthropic.messages.create({
+      model:      safeModel,
+      max_tokens: Math.min(parseInt(max_tokens, 10) || 1000, 4000),
+      system:     typeof system === 'string' ? system.slice(0, 8000) : undefined,
+      messages:   Array.isArray(messages) ? messages.slice(-20).map(m => ({
+        role:    m.role === 'assistant' ? 'assistant' : 'user',
+        content: typeof m.content === 'string' ? m.content.slice(0, 8000) : m.content,
+      })) : [],
+    });
+    res.json(msg);
+  } catch (err) {
+    console.error('[proxy] Anthropic error:', err.message);
+    res.status(502).json({ error: 'AI service unavailable. Try again shortly.' });
+  }
+});
+
 module.exports = router;
