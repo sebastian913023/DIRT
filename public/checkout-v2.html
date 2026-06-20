@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DIRT — Get In · $10 Launch</title>
+<meta name="description" content="6 autonomous AI agents for $10. Join Operation Shell Break."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow+Condensed:wght@300;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --void:#000008;--card:#0C0918;--raised:#13102A;
+  --amber:#F5A623;--amber2:#FFD27A;--amber3:#C47B10;
+  --green:#39FF6E;--red:#FF2D55;--cyan:#00E5FF;
+  --white:#F0EEFF;--muted:#6B6490;--border:rgba(245,166,35,0.2);
+}
+html,body{min-height:100vh;background:var(--void);color:var(--white);font-family:'Barlow',sans-serif;cursor:crosshair;}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%,rgba(245,166,35,0.07) 0%,transparent 60%),
+    radial-gradient(1px 1px at 20% 30%,rgba(245,166,35,0.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 80% 20%,rgba(0,229,255,0.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 60% 70%,rgba(255,255,255,0.2) 0%,transparent 100%),
+    radial-gradient(1px 1px at 10% 80%,rgba(245,166,35,0.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 90% 60%,rgba(0,229,255,0.25) 0%,transparent 100%);
+}
+#app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;}
+nav{padding:16px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(245,166,35,0.1);background:rgba(0,0,8,0.8);backdrop-filter:blur(12px);}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:5px;color:var(--amber);text-shadow:0 0 20px rgba(245,166,35,0.3);}
+.secure-badge{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--green);display:flex;align-items:center;gap:6px;}
+.secure-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);}
+main{flex:1;display:grid;grid-template-columns:1fr 1fr;max-width:1100px;margin:0 auto;width:100%;padding:48px 32px;gap:60px;align-items:start;}
+.offer-side{position:sticky;top:48px;}
+.offer-eyebrow{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--amber);margin-bottom:12px;}
+.offer-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,6vw,72px);line-height:0.9;letter-spacing:2px;margin-bottom:20px;}
+.offer-title span{color:var(--amber);}
+.offer-price-box{padding:24px;border:1px solid var(--border);background:rgba(245,166,35,0.04);margin-bottom:24px;position:relative;overflow:hidden;}
+.offer-price-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.price-was{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);text-decoration:line-through;letter-spacing:1px;}
+.price-now{font-family:'Bebas Neue',sans-serif;font-size:72px;color:var(--amber);line-height:1;text-shadow:0 0 40px rgba(245,166,35,0.3);}
+.price-now::before{content:'$';font-size:36px;vertical-align:top;padding-top:14px;color:var(--amber3);}
+.price-period{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--amber2);letter-spacing:2px;margin-top:4px;}
+.price-fine{font-size:12px;color:var(--muted);margin-top:6px;}
+.agents-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+.agents-title{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--amber);margin-bottom:6px;}
+.agent-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--card);border:1px solid rgba(245,166,35,0.1);transition:border-color 0.2s;}
+.agent-row:hover{border-color:rgba(245,166,35,0.3);}
+.agent-icon-sm{font-size:18px;color:var(--amber);width:26px;text-align:center;}
+.agent-info-sm{flex:1;}
+.agent-name-sm{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--amber);}
+.agent-role-sm{font-size:11px;color:var(--muted);margin-top:2px;}
+.agent-model-sm{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--cyan);border:1px solid rgba(0,229,255,0.2);padding:2px 6px;}
+.includes{margin-bottom:24px;}
+.includes-title{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--amber);margin-bottom:12px;}
+.include-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;color:rgba(240,238,255,0.7);}
+.include-item:last-child{border-bottom:none;}
+.include-check{color:var(--green);flex-shrink:0;font-size:14px;margin-top:1px;}
+.trust-row{display:flex;gap:16px;flex-wrap:wrap;}
+.trust-item{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted);display:flex;align-items:center;gap:5px;}
+.trust-icon{color:var(--green);}
+.proof-strip{margin-top:32px;padding:16px;background:rgba(57,255,110,0.03);border:1px solid rgba(57,255,110,0.1);}
+.proof-strip-title{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--green);margin-bottom:10px;}
+.proof-item{font-size:12px;color:rgba(240,238,255,0.55);padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:8px;}
+.proof-item:last-child{border-bottom:none;}
+.proof-live{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.steps{display:flex;gap:0;margin-bottom:32px;}
+.step{flex:1;padding:10px 12px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1px;border:1px solid var(--raised);color:var(--muted);background:rgba(12,9,24,0.5);transition:all 0.3s;}
+.step.active{border-color:var(--amber);color:var(--amber);background:rgba(245,166,35,0.05);}
+.step.done{border-color:var(--green);color:var(--green);background:rgba(57,255,110,0.05);}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:20px;display:block;margin-bottom:2px;}
+.form-panel{display:none;}
+.form-panel.active{display:block;animation:fade-slide 0.35s ease forwards;}
+@keyframes fade-slide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+.form-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:6px;}
+.form-desc{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.7;}
+.field{margin-bottom:16px;}
+.field-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--amber);display:block;margin-bottom:6px;}
+.field-input{width:100%;background:var(--card);border:1px solid rgba(245,166,35,0.2);color:var(--white);font-family:'Barlow',sans-serif;font-size:14px;padding:13px 16px;outline:none;transition:all 0.2s;}
+.field-input:focus{border-color:var(--amber);box-shadow:0 0 0 1px rgba(245,166,35,0.15),0 0 20px rgba(245,166,35,0.05);}
+.field-input::placeholder{color:var(--muted);}
+.field-input.error{border-color:var(--red);}
+.field-hint{font-size:11px;color:var(--muted);margin-top:5px;}
+.field-error{font-size:11px;color:var(--red);margin-top:5px;display:none;}
+.field-input.error + .field-error{display:block;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+select.field-input{cursor:crosshair;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M6 8L0 0h12z' fill='%23F5A623'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+.ref-field{display:flex;gap:0;}
+.ref-apply{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);border-left:none;color:var(--amber);padding:0 16px;cursor:crosshair;transition:all 0.2s;white-space:nowrap;}
+.ref-apply:hover{background:var(--amber);color:#000;}
+.ref-success{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);margin-top:6px;display:none;}
+.ref-success.show{display:block;}
+.order-summary{background:var(--card);border:1px solid var(--border);padding:20px;margin-bottom:20px;}
+.order-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;}
+.order-row:last-child{border-bottom:none;}
+.order-label{color:var(--muted);}
+.order-val{color:var(--white);}
+.order-total-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0 0;margin-top:4px;}
+.order-total-lbl{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--white);}
+.order-total-val{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--amber);text-shadow:0 0 20px rgba(245,166,35,0.3);}
+.order-total-val::before{content:'$';font-size:18px;vertical-align:top;padding-top:8px;}
+.discount-row{color:var(--green);}
+.progress-bar{height:3px;background:rgba(245,166,35,0.15);margin-bottom:20px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--amber3),var(--amber),var(--amber2));transition:width 0.5s ease;}
+.submit-btn{width:100%;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:900;letter-spacing:4px;text-transform:uppercase;background:var(--amber);color:#000;border:none;padding:18px;cursor:crosshair;position:relative;overflow:hidden;transition:all 0.25s;margin-top:8px;}
+.submit-btn:hover{background:var(--amber2);box-shadow:0 0 40px rgba(245,166,35,0.4);}
+.submit-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.submit-btn .btn-inner{display:flex;align-items:center;justify-content:center;gap:10px;}
+.submit-btn .arrow{transition:transform 0.2s;}
+.submit-btn:hover .arrow{transform:translateX(4px);}
+.back-link{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);background:none;border:none;cursor:crosshair;padding:0;margin-top:12px;display:flex;align-items:center;gap:6px;transition:color 0.2s;}
+.back-link:hover{color:var(--white);}
+#stripe-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,5,0.95);flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+#stripe-overlay.show{display:flex;}
+.stripe-spinner{width:60px;height:60px;border:2px solid rgba(245,166,35,0.2);border-top-color:var(--amber);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:24px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stripe-msg{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:2px;color:var(--amber);}
+.err-box{background:rgba(255,45,85,0.08);border:1px solid rgba(255,45,85,0.3);padding:12px 16px;margin-top:12px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--red);letter-spacing:1px;display:none;}
+.err-box.show{display:block;}
+@keyframes slide-up{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:768px){main{grid-template-columns:1fr;padding:24px 16px;gap:32px;}.offer-side{position:static;}.field-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<nav>
+  <div class="logo">⬡ DIRT</div>
+  <div class="secure-badge">
+    <div class="secure-dot"></div>
+    SECURED BY STRIPE · SSL ENCRYPTED
+  </div>
+</nav>
+
+<div id="stripe-overlay">
+  <div class="stripe-spinner"></div>
+  <div class="stripe-msg" id="stripe-overlay-msg">SECURING YOUR SESSION...</div>
+</div>
+
+<main id="checkout-main">
+
+  <!-- LEFT: OFFER -->
+  <div class="offer-side">
+    <div class="offer-eyebrow">⬡ OPERATION SHELL BREAK · LIMITED LAUNCH</div>
+    <div class="offer-title">BUST<br/>OUT<br/><span>YOUR<br/>SHELL.</span></div>
+
+    <div class="offer-price-box">
+      <div class="price-was">Standard: $49/mo (What Polsia charges)</div>
+      <div class="price-now">10</div>
+      <div class="price-period">YOUR FIRST 30 DAYS · FULL PLATFORM ACCESS</div>
+      <div class="price-fine">No revenue share. No hidden fees. Cancel anytime.</div>
+    </div>
+
+    <div class="agents-list">
+      <div class="agents-title">YOUR 6-AGENT TEAM</div>
+      <div class="agent-row"><div class="agent-icon-sm">◈</div><div class="agent-info-sm"><div class="agent-name-sm">APEX</div><div class="agent-role-sm">CEO · Strategic Orchestrator</div></div><div class="agent-model-sm">claude-opus-4-7</div></div>
+      <div class="agent-row"><div class="agent-icon-sm">◎</div><div class="agent-info-sm"><div class="agent-name-sm">SCOUT</div><div class="agent-role-sm">Research & Intelligence</div></div><div class="agent-model-sm">claude-sonnet-4-6</div></div>
+      <div class="agent-row"><div class="agent-icon-sm">◐</div><div class="agent-info-sm"><div class="agent-name-sm">SIGNAL</div><div class="agent-role-sm">Marketing & Content</div></div><div class="agent-model-sm">claude-sonnet-4-6</div></div>
+      <div class="agent-row"><div class="agent-icon-sm">⬡</div><div class="agent-info-sm"><div class="agent-name-sm">FORGE</div><div class="agent-role-sm">Dev & Product Engineering</div></div><div class="agent-model-sm">claude-sonnet-4-6</div></div>
+      <div class="agent-row"><div class="agent-icon-sm">◆</div><div class="agent-info-sm"><div class="agent-name-sm">VECTOR</div><div class="agent-role-sm">Sales & Lead Generation</div></div><div class="agent-model-sm">claude-sonnet-4-6</div></div>
+      <div class="agent-row"><div class="agent-icon-sm">◉</div><div class="agent-info-sm"><div class="agent-name-sm">RELAY</div><div class="agent-role-sm">Operations & Automation</div></div><div class="agent-model-sm">claude-sonnet-4-6</div></div>
+    </div>
+
+    <div class="includes">
+      <div class="includes-title">WHAT'S INCLUDED</div>
+      <div class="include-item"><span class="include-check">✓</span>Plan→Execute→Reflect 3-stage pipeline</div>
+      <div class="include-item"><span class="include-check">✓</span>LLM-as-judge quality scoring (0–100)</div>
+      <div class="include-item"><span class="include-check">✓</span>Auto-refinement on low-quality outputs</div>
+      <div class="include-item"><span class="include-check">✓</span>Persistent pinned memory architecture</div>
+      <div class="include-item"><span class="include-check">✓</span>Daily autonomous cycle (all 6 agents)</div>
+      <div class="include-item"><span class="include-check">✓</span>Full live activity transparency feed</div>
+      <div class="include-item"><span class="include-check">✓</span>45 task credits (no waste policy)</div>
+      <div class="include-item"><span class="include-check">✓</span>Semantic intent routing to right agent</div>
+    </div>
+
+    <div class="trust-row">
+      <div class="trust-item"><span class="trust-icon">✓</span> Stripe Secured</div>
+      <div class="trust-item"><span class="trust-icon">✓</span> SSL Encrypted</div>
+      <div class="trust-item"><span class="trust-icon">✓</span> No Rev Share</div>
+      <div class="trust-item"><span class="trust-icon">✓</span> Cancel Anytime</div>
+    </div>
+
+    <div class="proof-strip">
+      <div class="proof-strip-title">🔴 LIVE ACTIVITY</div>
+      <div class="proof-item"><div class="proof-live"></div>Jordan T. from Austin just activated DIRT</div>
+      <div class="proof-item"><div class="proof-live"></div>Marcus R. — APEX completed overnight cycle</div>
+      <div class="proof-item"><div class="proof-live"></div>Priya S. — SIGNAL wrote 30 LinkedIn posts</div>
+      <div class="proof-item"><div class="proof-live"></div>847 founders in Operation Shell Break</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: CHECKOUT FORM -->
+  <div class="checkout-side">
+
+    <div class="steps">
+      <div class="step active" id="step-1"><span class="step-num">01</span>YOUR INFO</div>
+      <div class="step" id="step-2"><span class="step-num">02</span>COMPANY</div>
+      <div class="step" id="step-3"><span class="step-num">03</span>PAYMENT</div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:33%"></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="form-panel active" id="panel-1">
+      <div class="form-title">Your Info</div>
+      <div class="form-desc">We'll send your DIRT access credentials and receipt here.</div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label" for="first-name">FIRST NAME</label>
+          <input class="field-input" id="first-name" type="text" placeholder="Sebastian" autocomplete="given-name"/>
+          <div class="field-error">Required</div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="last-name">LAST NAME</label>
+          <input class="field-input" id="last-name" type="text" placeholder="Smith" autocomplete="family-name"/>
+          <div class="field-error">Required</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="email">EMAIL ADDRESS</label>
+        <input class="field-input" id="email" type="email" placeholder="you@company.com" autocomplete="email"/>
+        <div class="field-hint">Your DIRT credentials will be sent here</div>
+        <div class="field-error">Valid email required</div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="referral">REFERRAL CODE (OPTIONAL)</label>
+        <div class="ref-field">
+          <input class="field-input" id="referral" type="text" placeholder="DIRT-SHELLBREAK-2026" style="border-right:none"/>
+          <button class="ref-apply" onclick="applyReferral()">APPLY</button>
+        </div>
+        <div class="ref-success" id="ref-success">✓ Code applied — $5 discount unlocked!</div>
+      </div>
+      <button class="submit-btn" onclick="goStep(2)">
+        <div class="btn-inner">CONTINUE <span class="arrow">→</span></div>
+      </button>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="form-panel" id="panel-2">
+      <div class="form-title">Your Company</div>
+      <div class="form-desc">Your agents will use this context for every task. Be specific — it makes outputs dramatically better.</div>
+      <div class="field">
+        <label class="field-label" for="company-name">COMPANY NAME</label>
+        <input class="field-input" id="company-name" type="text" placeholder="e.g. NexGen Dental AI"/>
+        <div class="field-error">Required</div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label" for="industry">INDUSTRY</label>
+          <select class="field-input" id="industry">
+            <option value="">Select industry...</option>
+            <option>Healthcare / Med Spa</option>
+            <option>SaaS / Software</option>
+            <option>E-Commerce / DTC</option>
+            <option>Real Estate</option>
+            <option>Finance / Fintech</option>
+            <option>Marketing Agency</option>
+            <option>Consulting</option>
+            <option>Crypto / Web3</option>
+            <option>Content / Creator</option>
+            <option>Legal Services</option>
+            <option>Other</option>
+          </select>
+          <div class="field-error">Required</div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="stage">COMPANY STAGE</label>
+          <select class="field-input" id="stage">
+            <option value="">Select stage...</option>
+            <option>Idea / Pre-revenue</option>
+            <option>$0–$1K MRR</option>
+            <option>$1K–$10K MRR</option>
+            <option>$10K–$50K MRR</option>
+            <option>$50K+ MRR</option>
+          </select>
+          <div class="field-error">Required</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="mission">COMPANY MISSION (1–2 sentences)</label>
+        <textarea class="field-input" id="mission" rows="3" placeholder="e.g. We help dental offices recover missed-call revenue with AI automation."></textarea>
+        <div class="field-hint">The more specific, the better your agents perform from day one</div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="biggest-goal">BIGGEST 30-DAY GOAL</label>
+        <select class="field-input" id="biggest-goal">
+          <option value="">What do you need most right now?</option>
+          <option>Close my first paying client</option>
+          <option>Launch my product / MVP</option>
+          <option>Scale marketing content</option>
+          <option>Build outreach pipeline</option>
+          <option>Automate operations</option>
+          <option>Research market & competitors</option>
+          <option>Raise funding / pitch investors</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button class="back-link" onclick="goStep(1)">← BACK</button>
+        <button class="submit-btn" style="flex:1" onclick="goStep(3)">
+          <div class="btn-inner">REVIEW ORDER <span class="arrow">→</span></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="form-panel" id="panel-3">
+      <div class="form-title">Review & Pay</div>
+      <div class="form-desc">Confirm your order. Payment processed securely by Stripe.</div>
+      <div class="order-summary">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--amber);margin-bottom:14px">ORDER SUMMARY</div>
+        <div class="order-row"><span class="order-label">Product</span><span class="order-val">DIRT — Shell Break · 30 Days</span></div>
+        <div class="order-row"><span class="order-label">Agents</span><span class="order-val">6 Autonomous Agents</span></div>
+        <div class="order-row"><span class="order-label">Primary Model</span><span class="order-val" style="color:var(--amber)">claude-opus-4-7</span></div>
+        <div class="order-row"><span class="order-label">Credits</span><span class="order-val">45 Task Credits</span></div>
+        <div class="order-row"><span class="order-label">Daily Cycle</span><span class="order-val">All 6 agents, every day</span></div>
+        <div class="order-row" id="discount-row" style="display:none"><span class="order-label discount-row">Referral Discount</span><span class="order-val discount-row" style="color:var(--green)">−$5.00</span></div>
+        <div class="order-row"><span class="order-label">Access Period</span><span class="order-val">30 Days Full Access</span></div>
+        <div class="order-total-row">
+          <div class="order-total-lbl">TODAY'S TOTAL</div>
+          <div class="order-total-val" id="order-total">10</div>
+        </div>
+      </div>
+      <div style="padding:14px;background:rgba(245,166,35,0.04);border:1px solid rgba(245,166,35,0.15);margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.8;" id="confirm-summary">Loading order details...</div>
+      <div class="err-box" id="err-box">Error creating payment session. Please try again.</div>
+      <button class="submit-btn" id="pay-btn" onclick="completePurchase()">
+        <div class="btn-inner">🔒 PAY $10 · BUST OUT MY SHELL <span class="arrow">→</span></div>
+      </button>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);text-align:center;margin-top:10px;letter-spacing:1px;line-height:1.8">SECURED BY STRIPE · 256-BIT SSL · NO REVENUE SHARE · CANCEL ANYTIME</div>
+      <div style="display:flex;gap:12px;margin-top:12px;">
+        <button class="back-link" onclick="goStep(2)">← BACK</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<script>
+let currentStep = 1;
+let hasReferral = false;
+let formData = {};
+
+function goStep(step) {
+  if(step > currentStep && !validateStep(currentStep)) return;
+  collectData();
+  document.getElementById(`panel-${currentStep}`).classList.remove('active');
+  document.getElementById(`panel-${step}`).classList.add('active');
+  for(let i=1;i<=3;i++) {
+    const el = document.getElementById(`step-${i}`);
+    el.className = 'step' + (i===step?' active':(i<step?' done':''));
+  }
+  document.getElementById('progress-fill').style.width = (step/3*100)+'%';
+  currentStep = step;
+  if(step===3) populateSummary();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function validateStep(step) {
+  let valid = true;
+  if(step===1) {
+    const fn = document.getElementById('first-name');
+    const ln = document.getElementById('last-name');
+    const em = document.getElementById('email');
+    if(!fn.value.trim()) { fn.classList.add('error'); valid=false; } else fn.classList.remove('error');
+    if(!ln.value.trim()) { ln.classList.add('error'); valid=false; } else ln.classList.remove('error');
+    if(!em.value.trim()||!em.value.includes('@')) { em.classList.add('error'); valid=false; } else em.classList.remove('error');
+  }
+  if(step===2) {
+    const cn  = document.getElementById('company-name');
+    const ind = document.getElementById('industry');
+    const st  = document.getElementById('stage');
+    if(!cn.value.trim())  { cn.classList.add('error');  valid=false; } else cn.classList.remove('error');
+    if(!ind.value)        { ind.classList.add('error'); valid=false; } else ind.classList.remove('error');
+    if(!st.value)         { st.classList.add('error');  valid=false; } else st.classList.remove('error');
+  }
+  return valid;
+}
+
+function collectData() {
+  formData = {
+    firstName:   document.getElementById('first-name')?.value  || '',
+    lastName:    document.getElementById('last-name')?.value   || '',
+    email:       document.getElementById('email')?.value       || '',
+    referral:    document.getElementById('referral')?.value    || '',
+    companyName: document.getElementById('company-name')?.value|| '',
+    industry:    document.getElementById('industry')?.value    || '',
+    stage:       document.getElementById('stage')?.value       || '',
+    mission:     document.getElementById('mission')?.value     || '',
+    goal:        document.getElementById('biggest-goal')?.value|| '',
+    hasReferral,
+  };
+}
+
+function applyReferral() {
+  const code = document.getElementById('referral').value.trim().toUpperCase();
+  const validCodes = ['DIRT-SHELLBREAK-2026','SHELLBREAK','DIRT10','BREAK'];
+  const el = document.getElementById('ref-success');
+  if(validCodes.includes(code)) {
+    hasReferral = true;
+    el.textContent = '✓ Code applied — $5 discount unlocked!';
+    el.style.color = 'var(--green)';
+    el.classList.add('show');
+    document.getElementById('discount-row').style.display='flex';
+    document.getElementById('order-total').textContent = '5';
+    const btn = document.getElementById('pay-btn');
+    if(btn) btn.querySelector('.btn-inner').innerHTML = '🔒 PAY $5 · REFERRAL APPLIED <span class="arrow">→</span>';
+  } else {
+    hasReferral = false;
+    el.textContent = '✗ Invalid code — try DIRT-SHELLBREAK-2026';
+    el.style.color = 'var(--red)';
+    el.classList.add('show');
+  }
+}
+
+function populateSummary() {
+  collectData();
+  const el = document.getElementById('confirm-summary');
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  el.innerHTML = `
+    <strong style="color:var(--amber);font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px">YOUR PROFILE</strong><br/>
+    Name: <span style="color:var(--white)">${esc(formData.firstName)} ${esc(formData.lastName)}</span><br/>
+    Email: <span style="color:var(--white)">${esc(formData.email)}</span><br/>
+    Company: <span style="color:var(--white)">${esc(formData.companyName)}</span><br/>
+    Industry: <span style="color:var(--white)">${esc(formData.industry)}</span><br/>
+    Stage: <span style="color:var(--white)">${esc(formData.stage)}</span>
+    ${formData.goal?`<br/>Goal: <span style="color:var(--white)">${esc(formData.goal)}</span>`:''}
+  `;
+  if(hasReferral) {
+    document.getElementById('discount-row').style.display='flex';
+    document.getElementById('order-total').textContent='5';
+  }
+}
+
+async function completePurchase() {
+  collectData();
+  const btn = document.getElementById('pay-btn');
+  const errBox = document.getElementById('err-box');
+  errBox.classList.remove('show');
+  btn.disabled = true;
+
+  const overlay = document.getElementById('stripe-overlay');
+  overlay.classList.add('show');
+  const msgs = ['SECURING YOUR SESSION...','ENCRYPTING CONNECTION...','ROUTING TO STRIPE...','LAUNCHING SHELL BREAK...'];
+  let mi = 0;
+  const msgEl = document.getElementById('stripe-overlay-msg');
+  const ticker = setInterval(()=>{ mi=(mi+1)%msgs.length; msgEl.textContent=msgs[mi]; }, 600);
+
+  try {
+    const res = await fetch('/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+    const data = await res.json();
+    clearInterval(ticker);
+    if(data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || 'No URL returned');
+    }
+  } catch(err) {
+    clearInterval(ticker);
+    overlay.classList.remove('show');
+    btn.disabled = false;
+    errBox.textContent = err.message || 'Payment session could not be created. Please try again.';
+    errBox.classList.add('show');
+  }
+}
+
+// Countdown
+const END = new Date();
+END.setDate(END.getDate() + 7);
+END.setHours(23,59,59,0);
+function countdown() {
+  const diff = Math.max(0, END - new Date());
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor((diff%86400000)/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  const fmt = n => String(n).padStart(2,'0');
+  const el = document.getElementById('countdown-mini');
+  if(el) el.textContent = `${fmt(d)}d ${fmt(h)}h ${fmt(m)}m ${fmt(s)}s`;
+}
+const priceBox = document.querySelector('.offer-price-box');
+if(priceBox) {
+  const cd = document.createElement('div');
+  cd.style.cssText='font-family:Share Tech Mono,monospace;font-size:10px;letter-spacing:2px;color:#FF2D55;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,45,85,0.2)';
+  cd.innerHTML='⏰ OFFER EXPIRES: <span id="countdown-mini" style="color:#FFD27A;font-weight:bold"></span>';
+  priceBox.appendChild(cd);
+}
+countdown();
+setInterval(countdown, 1000);
+
+document.querySelectorAll('.field-input').forEach(input => {
+  input.addEventListener('input', function() {
+    if(this.classList.contains('error') && this.value.trim()) this.classList.remove('error');
+  });
+  input.addEventListener('focus', function() {
+    const lbl = this.parentElement.querySelector('.field-label');
+    if(lbl) lbl.style.color = 'var(--amber2)';
+  });
+  input.addEventListener('blur', function() {
+    const lbl = this.parentElement.querySelector('.field-label');
+    if(lbl) lbl.style.color = 'var(--amber)';
+  });
+});
+</script>
+</body>
+</html>

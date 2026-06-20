@@ -70,6 +70,18 @@ app.get('/mobile', (req, res) =>
   res.sendFile(path.join(__dirname, 'public', 'mobile.html'))
 );
 
+app.get('/platform', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'platform.html'))
+);
+
+app.get('/checkout-v2', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'checkout-v2.html'))
+);
+
+app.get('/agency', (req, res) =>
+  res.sendFile(path.join(__dirname, 'public', 'agency.html'))
+);
+
 app.get('/success', async (req, res) => {
   let email = '';
   try {

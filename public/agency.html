@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DIRT — Agency Launch System</title>
+<meta name="description" content="AI Automation Micro-Agency Launch Kit — Complete 30-day system to your first client."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0A0C0F;}
+#root{min-height:100vh;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:#0A0C0F;}
+::-webkit-scrollbar-thumb{background:#1E2530;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+const CYAN = "#00FFD1";
+const DARK = "#0A0C0F";
+const CARD = "#111418";
+const BORDER = "#1E2530";
+const MUTED = "#4A5568";
+const TEXT = "#E2E8F0";
+const ACCENT2 = "#FF6B35";
+
+const styles = {
+  app: {
+    background: DARK,
+    minHeight: "100vh",
+    fontFamily: "'Courier New', 'Lucida Console', monospace",
+    color: TEXT,
+    padding: "0",
+  },
+  header: {
+    borderBottom: `1px solid ${BORDER}`,
+    padding: "20px 32px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    background: "#0D1117",
+    position: "sticky",
+    top: 0,
+    zIndex: 100,
+  },
+  logo: {
+    fontSize: "13px",
+    letterSpacing: "4px",
+    color: CYAN,
+    textTransform: "uppercase",
+    fontWeight: "bold",
+  },
+  badge: {
+    background: CYAN,
+    color: DARK,
+    fontSize: "10px",
+    letterSpacing: "2px",
+    padding: "4px 10px",
+    fontWeight: "bold",
+  },
+  nav: {
+    display: "flex",
+    gap: "0",
+    padding: "0 32px",
+    borderBottom: `1px solid ${BORDER}`,
+    background: "#0D1117",
+    overflowX: "auto",
+  },
+  navBtn: (active) => ({
+    padding: "14px 20px",
+    fontSize: "11px",
+    letterSpacing: "2px",
+    textTransform: "uppercase",
+    background: "none",
+    border: "none",
+    borderBottom: active ? `2px solid ${CYAN}` : "2px solid transparent",
+    color: active ? CYAN : MUTED,
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+    fontFamily: "inherit",
+    transition: "color 0.2s",
+  }),
+  main: {
+    padding: "32px",
+    maxWidth: "1100px",
+    margin: "0 auto",
+  },
+  sectionTitle: {
+    fontSize: "11px",
+    letterSpacing: "4px",
+    color: CYAN,
+    textTransform: "uppercase",
+    marginBottom: "8px",
+    fontWeight: "bold",
+  },
+  h2: {
+    fontSize: "26px",
+    fontWeight: "bold",
+    color: TEXT,
+    marginBottom: "6px",
+    lineHeight: 1.2,
+    fontFamily: "'Georgia', serif",
+    letterSpacing: "-0.5px",
+  },
+  subtext: {
+    color: MUTED,
+    fontSize: "13px",
+    marginBottom: "32px",
+    lineHeight: 1.6,
+  },
+  card: {
+    background: CARD,
+    border: `1px solid ${BORDER}`,
+    padding: "24px",
+    marginBottom: "16px",
+  },
+  cardTitle: {
+    fontSize: "12px",
+    letterSpacing: "3px",
+    textTransform: "uppercase",
+    color: CYAN,
+    marginBottom: "12px",
+    fontWeight: "bold",
+  },
+  cardBody: {
+    fontSize: "13px",
+    lineHeight: 1.8,
+    color: TEXT,
+  },
+  grid2: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "16px",
+  },
+  grid3: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr 1fr",
+    gap: "16px",
+  },
+  tag: {
+    display: "inline-block",
+    background: "#0A1A14",
+    border: `1px solid ${CYAN}`,
+    color: CYAN,
+    fontSize: "10px",
+    padding: "3px 10px",
+    letterSpacing: "2px",
+    marginRight: "8px",
+    marginBottom: "8px",
+    textTransform: "uppercase",
+  },
+  tagOrange: {
+    display: "inline-block",
+    background: "#1A0F0A",
+    border: `1px solid ${ACCENT2}`,
+    color: ACCENT2,
+    fontSize: "10px",
+    padding: "3px 10px",
+    letterSpacing: "2px",
+    marginRight: "8px",
+    marginBottom: "8px",
+    textTransform: "uppercase",
+  },
+  script: {
+    background: "#080B0E",
+    border: `1px solid ${BORDER}`,
+    borderLeft: `3px solid ${CYAN}`,
+    padding: "20px",
+    fontSize: "13px",
+    lineHeight: 2,
+    whiteSpace: "pre-wrap",
+    color: "#A0AEC0",
+    marginBottom: "16px",
+    fontFamily: "'Courier New', monospace",
+  },
+  highlight: {
+    color: CYAN,
+    fontWeight: "bold",
+  },
+  highlightO: {
+    color: ACCENT2,
+    fontWeight: "bold",
+  },
+  stat: {
+    textAlign: "center",
+    padding: "24px",
+    background: CARD,
+    border: `1px solid ${BORDER}`,
+  },
+  statNum: {
+    fontSize: "32px",
+    fontWeight: "bold",
+    color: CYAN,
+    fontFamily: "'Georgia', serif",
+    display: "block",
+    marginBottom: "4px",
+  },
+  statLabel: {
+    fontSize: "10px",
+    letterSpacing: "2px",
+    color: MUTED,
+    textTransform: "uppercase",
+  },
+  dayRow: (highlight) => ({
+    display: "flex",
+    gap: "16px",
+    borderBottom: `1px solid ${BORDER}`,
+    alignItems: "flex-start",
+    background: highlight ? "#0A1410" : "transparent",
+    padding: highlight ? "14px 12px" : "14px 0",
+    marginLeft: highlight ? "-12px" : "0",
+    marginRight: highlight ? "-12px" : "0",
+  }),
+  dayNum: {
+    minWidth: "60px",
+    fontSize: "11px",
+    color: CYAN,
+    letterSpacing: "2px",
+    paddingTop: "2px",
+    fontWeight: "bold",
+  },
+  dayContent: {
+    flex: 1,
+  },
+  dayTask: {
+    fontSize: "13px",
+    color: TEXT,
+    marginBottom: "4px",
+    fontWeight: "bold",
+  },
+  dayDetail: {
+    fontSize: "12px",
+    color: MUTED,
+    lineHeight: 1.6,
+  },
+  priceCard: (featured) => ({
+    background: featured ? "#0A1A14" : CARD,
+    border: `2px solid ${featured ? CYAN : BORDER}`,
+    padding: "28px",
+    position: "relative",
+  }),
+  priceTag: {
+    fontSize: "28px",
+    fontWeight: "bold",
+    color: CYAN,
+    fontFamily: "'Georgia', serif",
+  },
+  priceLabel: {
+    fontSize: "10px",
+    color: MUTED,
+    letterSpacing: "2px",
+    textTransform: "uppercase",
+    marginBottom: "8px",
+  },
+  priceName: {
+    fontSize: "14px",
+    letterSpacing: "3px",
+    textTransform: "uppercase",
+    color: TEXT,
+    fontWeight: "bold",
+    marginBottom: "16px",
+  },
+  featureList: {
+    listStyle: "none",
+    padding: 0,
+    margin: "16px 0",
+    fontSize: "12px",
+    lineHeight: 2.2,
+    color: "#A0AEC0",
+  },
+  featuredBadge: {
+    position: "absolute",
+    top: "-1px",
+    right: "20px",
+    background: CYAN,
+    color: DARK,
+    fontSize: "9px",
+    letterSpacing: "2px",
+    padding: "4px 10px",
+    fontWeight: "bold",
+    textTransform: "uppercase",
+  },
+  divider: {
+    border: "none",
+    borderTop: `1px solid ${BORDER}`,
+    margin: "28px 0",
+  },
+  copyBtn: {
+    background: "none",
+    border: `1px solid ${BORDER}`,
+    color: MUTED,
+    fontSize: "10px",
+    letterSpacing: "2px",
+    padding: "6px 14px",
+    cursor: "pointer",
+    fontFamily: "inherit",
+    textTransform: "uppercase",
+    float: "right",
+    marginTop: "-4px",
+    transition: "all 0.2s",
+  },
+  polsiaBlock: {
+    background: "#080B0E",
+    border: `1px solid ${BORDER}`,
+    borderLeft: `4px solid ${ACCENT2}`,
+    padding: "20px 24px",
+    marginBottom: "16px",
+    fontSize: "13px",
+    lineHeight: 1.9,
+    color: "#A0AEC0",
+    whiteSpace: "pre-wrap",
+  },
+  infoBox: {
+    background: "#0A1017",
+    border: `1px solid #1E3A5F`,
+    padding: "16px 20px",
+    fontSize: "12px",
+    color: "#7BB8D4",
+    lineHeight: 1.8,
+    marginBottom: "20px",
+  },
+};
+
+function OverviewTab() {
+  return (
+    <div>
+      <div style={styles.sectionTitle}>Mission Control</div>
+      <h2 style={styles.h2}>AI Automation Micro-Agency</h2>
+      <p style={styles.subtext}>
+        Local service businesses are leaking revenue every hour. You're the operator who stops it.
+        This is your complete launch system — ready to execute in 30 days.
+      </p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "12px", marginBottom: "32px" }}>
+        {[
+          { num: "4–8 wks", label: "Time to First Client" },
+          { num: "$1,500", label: "Floor Setup Fee" },
+          { num: "60–70%", label: "Gross Margin" },
+          { num: "$8K+", label: "MRR Target Day 60" },
+        ].map((s) => (
+          <div key={s.label} style={styles.stat}>
+            <span style={styles.statNum}>{s.num}</span>
+            <span style={styles.statLabel}>{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <div style={styles.grid2}>
+        <div style={styles.card}>
+          <div style={styles.cardTitle}>🎯 Your Target Niche</div>
+          <div style={styles.cardBody}>
+            <strong style={{ color: CYAN }}>Dental Offices & Med Spas</strong>
+            <br /><br />
+            These businesses share identical pain: missed calls = missed revenue.
+            A single missed appointment costs $200–$800. They have the budget,
+            they feel the pain daily, and they make decisions fast.
+            <br /><br />
+            <span style={styles.tag}>High Budget</span>
+            <span style={styles.tag}>Fast Decisions</span>
+            <span style={styles.tag}>Clear ROI</span>
+            <span style={styles.tag}>Duluth MN Region</span>
+          </div>
+        </div>
+
+        <div style={styles.card}>
+          <div style={styles.cardTitle}>⚡ Your Stack Advantage</div>
+          <div style={styles.cardBody}>
+            Competitors use Make.com + Voiceflow. You're deploying:
+            <br /><br />
+            <span style={styles.tag}>LangGraph</span>
+            <span style={styles.tag}>MCP Server</span>
+            <span style={styles.tag}>Groq/Llama 3.3</span>
+            <span style={styles.tag}>Next.js 15</span>
+            <span style={styles.tag}>Drizzle ORM</span>
+            <span style={styles.tag}>Better Auth</span>
+            <br />
+            Your builds are faster, smarter, and more durable.
+            That's a moat no no-code agency can match.
+          </div>
+        </div>
+      </div>
+
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>📦 What You're Selling (3 Productized Offers)</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginTop: "8px" }}>
+          {[
+            {
+              name: "STARTER",
+              price: "$750–$1,500",
+              retainer: "+ $500/mo",
+              desc: "Missed-call text-back + lead capture flow. One workflow. One clear win. Gets you in the door.",
+              time: "3–5 days to build",
+            },
+            {
+              name: "CORE",
+              price: "$2,500–$5,000",
+              retainer: "+ $1,000/mo",
+              desc: "AI intake form + CRM sync + auto follow-up email/SMS sequence. 80% of missed revenue recovered.",
+              time: "7–14 days to build",
+              featured: true,
+            },
+            {
+              name: "FULL SYSTEM",
+              price: "$5,000–$10,000",
+              retainer: "+ $1,500/mo",
+              desc: "Multi-agent lead → qualify → book → nurture pipeline. Full autonomous ops layer.",
+              time: "14–21 days to build",
+            },
+          ].map((p) => (
+            <div key={p.name} style={styles.priceCard(p.featured)}>
+              {p.featured && <div style={styles.featuredBadge}>Best Seller</div>}
+              <div style={styles.priceLabel}>{p.name}</div>
+              <div style={styles.priceTag}>{p.price}</div>
+              <div style={{ fontSize: "11px", color: ACCENT2, marginBottom: "12px", letterSpacing: "1px" }}>{p.retainer} retainer</div>
+              <div style={{ fontSize: "12px", color: "#A0AEC0", lineHeight: 1.7, marginBottom: "10px" }}>{p.desc}</div>
+              <div style={{ fontSize: "11px", color: MUTED, letterSpacing: "1px" }}>⏱ {p.time}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>🤖 How Polsia Fits In</div>
+        <div style={styles.cardBody}>
+          Polsia runs your <strong style={{ color: CYAN }}>outbound prospecting arm</strong> 24/7 while you build and close.
+          Configure it with your niche, offer, and outreach scripts (see Outreach tab).
+          You show up for discovery calls and delivery. Polsia fills your pipeline.
+          <br /><br />
+          <span style={styles.tagOrange}>Polsia handles</span> Cold outreach · Demo video distribution · Follow-up sequences · Social content
+          <br />
+          <span style={styles.tag}>You handle</span> Discovery calls · Client delivery · Retainer upsells
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OutreachTab() {
+  const [copied, setCopied] = useState(null);
+  const copy = (id, text) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(id);
+      setTimeout(() => setCopied(null), 2000);
+    });
+  };
+
+  const dm = `Hi [Name],
+
+I noticed [Business Name] is active on Google — you've got solid reviews.
+
+Quick question: how many calls does your front desk miss per week while staff are with patients?
+
+I build AI systems specifically for dental/med spa practices that capture those leads automatically, qualify them, and book appointments without anyone picking up the phone.
+
+I put together a 60-second demo of exactly what this looks like for a practice like yours.
+
+Want me to send it over?`;
+
+  const email = `Subject: [Business Name] — capturing the calls you're currently missing
+
+Hi [First Name],
+
+I looked up [Business Name] and noticed something most practices don't realize is costing them revenue:
+
+Every missed call during patient hours is a potential $200–$800 appointment walking to your competitor.
+
+I build AI automation systems specifically for dental practices and med spas that:
+→ Text back missed callers within 30 seconds
+→ Qualify the lead and capture their info automatically
+→ Book them directly into your schedule — no staff required
+
+I recently built this for a similar practice in [Region]. Their no-show rate dropped 31% in the first month.
+
+I put together a short demo video (90 seconds) showing exactly how it works for a practice your size.
+
+Can I send it to you?
+
+— [Your Name]
+AI Automation Systems for Healthcare Practices
+[Phone] | [Website]
+
+P.S. Setup takes under 2 weeks and there's a full refund if it doesn't save your team 5+ hours in the first week.`;
+
+  const followUp = `Hi [Name],
+
+Sent over a quick demo last week — wanted to make sure it didn't get buried.
+
+The short version: I build AI systems that recover missed-call revenue for practices like yours. Takes about 2 weeks to set up, pays for itself from the first month.
+
+Would a 15-minute call this week work to see if it's a fit?
+
+[Calendly link]`;
+
+  const pilot = `The Pilot Offer (close hesitant prospects):
+
+"Here's what I'd suggest: let's start with just one workflow — the missed-call text-back.
+
+I'll set it up for $500. If it doesn't save your team at least 5 hours in the first week, I refund every cent.
+
+No risk. If it works — which it will — we talk about the full system."
+
+[This converts 60–70% of warm prospects who are on the fence]`;
+
+  return (
+    <div>
+      <div style={styles.sectionTitle}>Outreach Arsenal</div>
+      <h2 style={styles.h2}>Scripts, Templates & Sequences</h2>
+      <p style={styles.subtext}>
+        Copy-paste ready. Personalize the bracketed fields. Send 20 outreach messages per day via Polsia + manual LinkedIn.
+      </p>
+
+      <div style={styles.infoBox}>
+        📊 <strong>Expected metrics:</strong> 2–5% response rate on cold outreach → 30–60% of respondents book a call → 40–60% of calls close on a pilot offer. At 20 messages/day: 1–2 booked calls per week by Week 2.
+      </div>
+
+      {[
+        { id: "dm", label: "01 — LinkedIn / X Cold DM", content: dm },
+        { id: "email", label: "02 — Cold Email (Primary)", content: email },
+        { id: "followup", label: "03 — Follow-Up (Day 5 if no reply)", content: followUp },
+        { id: "pilot", label: "04 — Pilot Close Script (Verbal / Call)", content: pilot },
+      ].map((s) => (
+        <div key={s.id} style={{ marginBottom: "20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+            <div style={styles.cardTitle}>{s.label}</div>
+            <button
+              style={{ ...styles.copyBtn, color: copied === s.id ? CYAN : MUTED, borderColor: copied === s.id ? CYAN : BORDER }}
+              onClick={() => copy(s.id, s.content)}
+            >
+              {copied === s.id ? "✓ Copied" : "Copy"}
+            </button>
+          </div>
+          <div style={styles.script}>{s.content}</div>
+        </div>
+      ))}
+
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>📹 The Demo Video Formula (60–90 seconds)</div>
+        <div style={styles.cardBody}>
+          Record this using Loom. No editing needed. Shot from your screen.<br /><br />
+          <strong style={{ color: CYAN }}>00:00–00:15</strong> — "Here's what's happening at most dental offices right now..." (show a fake missed call scenario)<br />
+          <strong style={{ color: CYAN }}>00:15–00:45</strong> — Show the AI text-back firing automatically, capturing the lead, booking the appointment<br />
+          <strong style={{ color: CYAN }}>00:45–00:60</strong> — "This took 2 weeks to set up. It runs 24/7. Want to see if it fits your practice?"<br /><br />
+          <span style={styles.tag}>No voiceover needed</span>
+          <span style={styles.tag}>Screen record only</span>
+          <span style={styles.tag}>1 demo closes more than 10 cold calls</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PolsiaTab() {
+  return (
+    <div>
+      <div style={styles.sectionTitle}>Polsia Configuration</div>
+      <h2 style={styles.h2}>Campaign Brief for Polsia</h2>
+      <p style={styles.subtext}>
+        Copy each block below directly into Polsia when setting up your company. This is your AI marketing department.
+      </p>
+
+      <div style={styles.infoBox}>
+        ⚠️ <strong>Polsia Setup Rule:</strong> Keep Polsia scoped to outreach and marketing ONLY. Do not give it access to your client delivery systems or existing codebases. New standalone mission only.
+      </div>
+
+      {[
+        {
+          label: "COMPANY MISSION (paste into Polsia company setup)",
+          content: `Company Name: [YOUR AGENCY NAME] — AI Automation Systems for Local Healthcare Practices
+
+Mission: Generate a consistent pipeline of qualified discovery call bookings with dental offices and med spas in the Duluth, Minnesota region and surrounding Midwest markets.
+
+Primary Offer: AI automation systems that recover missed-call revenue for healthcare practices. Setup fee $750–$5,000. Monthly retainer $500–$1,500.
+
+Target Customer: Practice owners and office managers at dental offices, orthodontists, med spas, and chiropractic clinics with 1–5 locations.
+
+Goal for first 30 days: Book 8–12 qualified discovery calls. Close 2 pilot clients.`,
+        },
+        {
+          label: "DAILY TASKS — assign these to Polsia",
+          content: `Task 1 — OUTREACH (daily)
+Find 20 dental offices and med spas in the Duluth MN / Twin Cities region.
+Send personalized LinkedIn connection requests + DMs using the cold DM script.
+Log all outreach in tracking sheet.
+
+Task 2 — EMAIL SEQUENCES (daily)
+Identify office managers / practice owners via LinkedIn + Google Maps.
+Send cold email sequences (3-touch over 14 days) using the cold email template.
+Personalize [Business Name] and [Region] fields for each contact.
+
+Task 3 — CONTENT (3x per week)
+Post on LinkedIn: short posts about AI automation wins for local businesses.
+Format: "Here's what happened when a dental practice automated their missed calls: [result]"
+Keep tone: direct, data-driven, no hype.
+
+Task 4 — FOLLOW-UPS (daily)
+Any prospect who opened an email but didn't reply → send follow-up on Day 5.
+Any LinkedIn connection who accepted but didn't reply → send DM follow-up on Day 3.`,
+        },
+        {
+          label: "CONTENT VOICE GUIDE — for Polsia's posts",
+          content: `Tone: Direct. Operator-to-operator. No buzzwords. No "revolutionary AI."
+Format: Short paragraphs. Specific numbers. Real outcomes.
+Topics to cover:
+- Missed call cost calculator for dental practices
+- Before/after: manual booking vs AI booking
+- "How much revenue did you lose to voicemail this week?"
+- Local business AI adoption stats
+- Simple demo breakdowns
+
+Never say: "game-changing", "leverage", "synergy", "at the end of the day"
+Always say: specific dollar amounts, time saved, conversion rates`,
+        },
+        {
+          label: "BOOKING LINK SETUP — give Polsia this CTA",
+          content: `All outreach CTAs should route to:
+→ Calendly 15-minute "Quick Fit Call" link (set yours up at calendly.com)
+→ Subject: "AI Automation — [Business Name] — 15 min"
+
+Calendly description to show prospects:
+"On this call I'll show you exactly how the missed-call recovery system works for a practice your size, what it costs, and how fast it gets set up. No pitch — just a fit check."`,
+        },
+      ].map((block) => (
+        <div key={block.label} style={{ marginBottom: "20px" }}>
+          <div style={styles.cardTitle}>{block.label}</div>
+          <div style={styles.polsiaBlock}>{block.content}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function WorkflowTab() {
+  return (
+    <div>
+      <div style={styles.sectionTitle}>Technical Delivery</div>
+      <h2 style={styles.h2}>Demo Workflow Specs</h2>
+      <p style={styles.subtext}>
+        Build these two demo workflows before you send your first outreach message.
+        These are your proof of concept. Record them on Loom.
+      </p>
+
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>🔥 DEMO 1 — Missed-Call Text-Back System (Build First)</div>
+        <div style={styles.cardBody}>
+          <strong style={{ color: CYAN }}>What it does:</strong> Detects a missed call → texts the caller within 30 seconds → captures their name + reason for calling → offers a booking link → logs to CRM<br /><br />
+
+          <strong style={{ color: CYAN }}>Stack:</strong><br />
+          <span style={styles.tag}>Twilio / VAPI</span> Incoming call webhook trigger<br />
+          <span style={styles.tag}>Groq/Llama 3.3</span> Qualify the lead via SMS conversation<br />
+          <span style={styles.tag}>Calendly API</span> Send booking link in SMS thread<br />
+          <span style={styles.tag}>Neon/Drizzle</span> Log lead to DB<br />
+          <span style={styles.tag}>Resend</span> Email notification to practice owner<br /><br />
+
+          <strong style={{ color: CYAN }}>MCP Tools used:</strong> call_webhook_listener, sms_send, lead_qualify, calendar_book, crm_log<br /><br />
+
+          <strong style={{ color: CYAN }}>Demo flow to record:</strong><br />
+          1. Simulate an incoming call that goes unanswered<br />
+          2. Show the AI SMS firing within 30 seconds<br />
+          3. Show a back-and-forth qualify conversation<br />
+          4. Show the Calendly booking link sent<br />
+          5. Show the lead logged in dashboard<br /><br />
+
+          <span style={styles.tagOrange}>Build time: 2–3 days</span>
+          <span style={styles.tag}>Sell price: $750–$1,500</span>
+        </div>
+      </div>
+
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>🚀 DEMO 2 — AI Patient Intake + Follow-Up System</div>
+        <div style={styles.cardBody}>
+          <strong style={{ color: CYAN }}>What it does:</strong> Web form submission → AI extracts intent and urgency → auto-responds with personalized email → adds to nurture sequence → flags high-value leads for immediate callback<br /><br />
+
+          <strong style={{ color: CYAN }}>Stack:</strong><br />
+          <span style={styles.tag}>Next.js API Route</span> Form submission webhook<br />
+          <span style={styles.tag}>Groq/Llama 3.3</span> Intent classification + response generation<br />
+          <span style={styles.tag}>Resend</span> Personalized email + SMS sequence<br />
+          <span style={styles.tag}>LangGraph</span> Multi-step nurture orchestration<br />
+          <span style={styles.tag}>Drizzle/Neon</span> Lead pipeline DB<br /><br />
+
+          <strong style={{ color: CYAN }}>LangGraph nodes:</strong><br />
+          intake_classifier → urgency_scorer → response_generator → sequence_router → crm_updater<br /><br />
+
+          <strong style={{ color: CYAN }}>Demo flow to record:</strong><br />
+          1. Submit a test "new patient inquiry" form<br />
+          2. Show AI classifying intent (new patient, existing, emergency)<br />
+          3. Show personalized response email generating and sending<br />
+          4. Show lead added to pipeline with urgency score<br />
+          5. Show 3-day follow-up sequence queued<br /><br />
+
+          <span style={styles.tagOrange}>Build time: 5–7 days</span>
+          <span style={styles.tag}>Sell price: $2,500–$5,000</span>
+        </div>
+      </div>
+
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>📁 File Structure for Client Delivery</div>
+        <div style={{ ...styles.script, marginBottom: 0 }}>
+{`[CLIENT-NAME]-automation/
+├── /agents
+│   ├── intake-classifier.ts       # LangGraph node
+│   ├── urgency-scorer.ts          # LangGraph node
+│   ├── response-generator.ts      # Groq/Llama call
+│   └── sequence-router.ts         # LangGraph node
+├── /api
+│   ├── webhook-handler.ts         # Incoming triggers
+│   └── sms-responder.ts           # Twilio outbound
+├── /db
+│   └── schema.ts                  # Drizzle schema
+├── /tools
+│   └── mcp-server.ts              # 16-tool MCP server
+├── .env.example                   # Keys template (NO real keys)
+├── README.md                      # Client handoff doc
+└── RETAINER.md                    # What the retainer covers`}
+        </div>
+      </div>
+
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>🔧 Retainer — What You're Charging Monthly For</div>
+        <div style={styles.cardBody}>
+          Never let "ongoing support" be vague. Here's exactly what the retainer buys:<br /><br />
+          <strong style={{ color: CYAN }}>Monthly Retainer Deliverables:</strong><br />
+          • Model updates — swap to better Groq/Llama releases as they drop<br />
+          • Performance report — monthly email with leads captured, bookings driven, ROI calc<br />
+          • 2 workflow optimizations — improve prompts, tweak sequences based on data<br />
+          • 24hr response SLA on system issues<br />
+          • 1 new micro-automation per quarter (builds loyalty + prevents churn)<br /><br />
+          <span style={styles.tag}>$500/mo Starter</span>
+          <span style={styles.tag}>$1,000/mo Core</span>
+          <span style={styles.tag}>$1,500/mo Full</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CalendarTab() {
+  const days = [
+    { range: "DAY 1–2", task: "Build Demo 1 (Missed-Call Text-Back)", detail: "Set up Twilio test number. Build LangGraph flow. Record 90-sec Loom demo. DO NOT send outreach yet.", hot: true },
+    { range: "DAY 3–5", task: "Configure Polsia + Outreach Setup", detail: "Paste Polsia campaign brief. Set up Calendly 15-min call link. Build prospect list of 50 dental offices in Duluth/Twin Cities region.", hot: true },
+    { range: "DAY 5–7", task: "Launch Outreach — First 100 Messages", detail: "Polsia starts daily DMs + email sequences. You personally send 10 hyper-personalized LinkedIn DMs to owners you found on Google Maps. Attach Loom demo link.", hot: true },
+    { range: "DAY 8–10", task: "Build Demo 2 (Patient Intake System)", detail: "LangGraph intake pipeline. Resend email sequence. Record second Loom. Now you have two demos for two price points.", hot: false },
+    { range: "DAY 11–14", task: "First Discovery Calls", detail: "Polsia's outreach should generate 2–4 interested prospects by now. Run 15-min fit calls. Goal: close 1 pilot at $500–$750. Use pilot close script.", hot: true },
+    { range: "DAY 15–21", task: "Deliver Pilot Client", detail: "Build and deploy Starter workflow for pilot client. Daily: keep Polsia running outreach. Follow up on any warm prospects from week 1.", hot: false },
+    { range: "DAY 22–25", task: "Collect Payment + Request Testimonial", detail: "Deliver pilot. Collect $500–$1,500. Ask for a short video or written testimonial immediately. This becomes your next demo asset.", hot: true },
+    { range: "DAY 26–30", task: "30-Day Check-In + Retainer Upsell", detail: "Review metrics with pilot client. Show ROI. Present retainer offer. Close $500/mo recurring. Now you have your first MRR.", hot: true },
+    { range: "DAY 31–45", task: "Close Client #2 + #3", detail: "Polsia pipeline should have 6–10 warm prospects by now. Close 2 more clients using case study from pilot. Target Core package ($2,500–$5,000).", hot: false },
+    { range: "DAY 46–60", task: "Retainers Stacking → $3K–$8K MRR", detail: "3 clients × $500–$1,500 retainer = $1,500–$4,500 MRR. Build #2 and #3. Aim for 2 Core package deliveries. Revenue target: $8,000+ collected by Day 60.", hot: false },
+  ];
+
+  return (
+    <div>
+      <div style={styles.sectionTitle}>Execution Timeline</div>
+      <h2 style={styles.h2}>30–60 Day Launch Calendar</h2>
+      <p style={styles.subtext}>
+        Every action mapped to a day. Follow this exactly. Deviation is the enemy of first revenue.
+      </p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "12px", marginBottom: "28px" }}>
+        {[
+          { label: "Day 30 Target", value: "$1,500–$3,500", sub: "First client + retainer" },
+          { label: "Day 60 Target", value: "$3K–$8K MRR", sub: "3 clients stacked" },
+          { label: "Success Rate", value: "80%+", sub: "With consistent outreach" },
+        ].map((s) => (
+          <div key={s.label} style={{ ...styles.stat, textAlign: "left", padding: "20px" }}>
+            <div style={{ fontSize: "10px", color: MUTED, letterSpacing: "2px", marginBottom: "4px", textTransform: "uppercase" }}>{s.label}</div>
+            <div style={{ fontSize: "24px", color: CYAN, fontFamily: "'Georgia',serif", fontWeight: "bold" }}>{s.value}</div>
+            <div style={{ fontSize: "11px", color: MUTED }}>{s.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={styles.card}>
+        {days.map((d, i) => (
+          <div key={i} style={styles.dayRow(d.hot)}>
+            <div style={styles.dayNum}>{d.range}</div>
+            <div style={styles.dayContent}>
+              <div style={{ ...styles.dayTask, color: d.hot ? TEXT : "#718096" }}>{d.task}</div>
+              <div style={styles.dayDetail}>{d.detail}</div>
+            </div>
+            {d.hot && <div style={{ color: CYAN, fontSize: "10px", paddingTop: "3px", letterSpacing: "1px" }}>● KEY</div>}
+          </div>
+        ))}
+      </div>
+
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>⚠️ The Rules That Determine Whether You Win</div>
+        <div style={styles.cardBody}>
+          <strong style={{ color: ACCENT2 }}>Rule 1:</strong> Build Demo 1 BEFORE sending a single message. Never pitch without proof.<br />
+          <strong style={{ color: ACCENT2 }}>Rule 2:</strong> One niche only. Dental/med spa. Do not scope creep to restaurants, retail, or ecom yet.<br />
+          <strong style={{ color: ACCENT2 }}>Rule 3:</strong> Sell outcomes, not AI. "Recover missed-call revenue" not "AI chatbot system."<br />
+          <strong style={{ color: ACCENT2 }}>Rule 4:</strong> Pilot offer closes hesitant clients. $500 refundable = zero friction entry.<br />
+          <strong style={{ color: ACCENT2 }}>Rule 5:</strong> Never start a build without a signed agreement AND 30% upfront payment.<br />
+          <strong style={{ color: ACCENT2 }}>Rule 6:</strong> Get the testimonial at delivery. Not a month later. Right then. It's your next case study.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PricingTab() {
+  return (
+    <div>
+      <div style={styles.sectionTitle}>Revenue Architecture</div>
+      <h2 style={styles.h2}>Pricing, Contracts & MRR Model</h2>
+      <p style={styles.subtext}>
+        Every number here is backed by real market data from agencies operating in this space in 2026.
+      </p>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "28px" }}>
+        {[
+          {
+            name: "STARTER",
+            setup: "$750–$1,500",
+            retainer: "$500/mo",
+            build: "2–3 days",
+            clients: "2–3 needed",
+            desc: "Missed-call text-back + lead capture. One workflow. Fast close. Use as pilot entry point.",
+            featured: false,
+          },
+          {
+            name: "CORE",
+            setup: "$2,500–$5,000",
+            retainer: "$1,000/mo",
+            build: "7–14 days",
+            clients: "1–2 needed",
+            desc: "Full AI intake + CRM + auto-follow-up + booking system. The workhorse offer. Best conversion.",
+            featured: true,
+          },
+          {
+            name: "FULL SYSTEM",
+            setup: "$5,000–$10,000",
+            retainer: "$1,500/mo",
+            build: "14–21 days",
+            clients: "1 = $10K+ yr",
+            desc: "Multi-agent agentic pipeline. Lead → qualify → book → nurture. Your LangGraph stack shines here.",
+            featured: false,
+          },
+        ].map((p) => (
+          <div key={p.name} style={styles.priceCard(p.featured)}>
+            {p.featured && <div style={styles.featuredBadge}>Start Here</div>}
+            <div style={styles.priceName}>{p.name}</div>
+            <div style={styles.priceTag}>{p.setup}</div>
+            <div style={{ fontSize: "12px", color: ACCENT2, marginBottom: "16px" }}>then {p.retainer}</div>
+            <hr style={{ border: "none", borderTop: `1px solid ${BORDER}`, margin: "0 0 16px" }} />
+            <ul style={styles.featureList}>
+              <li>⏱ Build: {p.build}</li>
+              <li>👥 Target: {p.clients}</li>
+            </ul>
+            <div style={{ fontSize: "12px", color: "#718096", lineHeight: 1.7 }}>{p.desc}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={styles.card}>
+        <div style={styles.cardTitle}>💰 MRR Projection — 3 Client Scenarios</div>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+            <thead>
+              <tr style={{ borderBottom: `1px solid ${BORDER}` }}>
+                {["Scenario", "Client Mix", "Setup Revenue", "Monthly Retainer", "Year 1 Revenue"].map((h) => (
+                  <th key={h} style={{ padding: "10px 12px", textAlign: "left", color: MUTED, letterSpacing: "1px", fontSize: "10px", textTransform: "uppercase" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { scenario: "Conservative", mix: "3× Starter", setup: "$4,500", retainer: "$1,500/mo", year1: "$22,500" },
+                { scenario: "Realistic", mix: "1× Starter + 2× Core", setup: "$7,500", retainer: "$2,500/mo", year1: "$37,500" },
+                { scenario: "Strong", mix: "2× Core + 1× Full", setup: "$17,500", retainer: "$3,500/mo", year1: "$59,500" },
+              ].map((r, i) => (
+                <tr key={i} style={{ borderBottom: `1px solid ${BORDER}` }}>
+                  <td style={{ padding: "12px", color: i === 1 ? CYAN : TEXT }}>{r.scenario}</td>
+                  <td style={{ padding: "12px", color: MUTED }}>{r.mix}</td>
+                  <td style={{ padding: "12px", color: TEXT }}>{r.setup}</td>
+                  <td style={{ padding: "12px", color: i === 1 ? CYAN : TEXT, fontWeight: i === 1 ? "bold" : "normal" }}>{r.retainer}</td>
+                  <td style={{ padding: "12px", color: i === 1 ? CYAN : TEXT, fontWeight: i === 1 ? "bold" : "normal" }}>{r.year1}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style={styles.grid2}>
+        <div style={styles.card}>
+          <div style={styles.cardTitle}>📋 Contract Essentials</div>
+          <div style={{ fontSize: "12px", lineHeight: 2, color: "#A0AEC0" }}>
+            ✓ Scope of Work (SOW) signed before any build<br />
+            ✓ Payment: 30% upfront / 40% at delivery / 30% go-live<br />
+            ✓ Change order clause (clients always expand scope)<br />
+            ✓ Client owns all data and output<br />
+            ✓ 30-day maintenance period included in setup fee<br />
+            ✓ Retainer auto-renews monthly, 30-day cancel notice<br />
+            ✓ API keys stored in client's own accounts (not yours)
+          </div>
+        </div>
+        <div style={styles.card}>
+          <div style={styles.cardTitle}>🚫 Red Flags — Walk Away</div>
+          <div style={{ fontSize: "12px", lineHeight: 2, color: "#A0AEC0" }}>
+            ✗ Client wants full build before any payment<br />
+            ✗ "We'll pay when we see results" — no<br />
+            ✗ Messy or nonexistent CRM / data system<br />
+            ✗ No clear decision maker in the room<br />
+            ✗ Wants "everything automated" with no defined scope<br />
+            ✗ Asking you to sign an NDA before a discovery call<br />
+            ✗ Business has under $500K annual revenue
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const TABS = [
+  { id: "overview", label: "01 Overview" },
+  { id: "outreach", label: "02 Outreach" },
+  { id: "polsia", label: "03 Polsia Setup" },
+  { id: "workflow", label: "04 Workflows" },
+  { id: "calendar", label: "05 Calendar" },
+  { id: "pricing", label: "06 Pricing" },
+];
+
+function App() {
+  const [tab, setTab] = useState("overview");
+
+  const renderTab = () => {
+    switch (tab) {
+      case "overview": return <OverviewTab />;
+      case "outreach": return <OutreachTab />;
+      case "polsia":   return <PolsiaTab />;
+      case "workflow": return <WorkflowTab />;
+      case "calendar": return <CalendarTab />;
+      case "pricing":  return <PricingTab />;
+      default: return null;
+    }
+  };
+
+  return (
+    <div style={styles.app}>
+      <div style={styles.header}>
+        <div style={styles.logo}>⬡ Agency Launch System</div>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          <div style={{ fontSize: "11px", color: MUTED, letterSpacing: "2px" }}>AI AUTOMATION MICRO-AGENCY</div>
+          <div style={styles.badge}>ACTIVE</div>
+        </div>
+      </div>
+
+      <div style={styles.nav}>
+        {TABS.map((t) => (
+          <button key={t.id} style={styles.navBtn(tab === t.id)} onClick={() => setTab(t.id)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div style={styles.main}>
+        {renderTab()}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>
