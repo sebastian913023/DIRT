@@ -2,6 +2,7 @@ require('dotenv').config();
 const express  = require('express');
 const cors     = require('cors');
 const session  = require('express-session');
+const SQLiteStore = require('connect-sqlite3')(session);
 const path     = require('path');
 const fs       = require('fs');
 const stripe   = require('./src/lib/stripe');
@@ -27,7 +28,12 @@ const allowedOrigins = process.env.APP_URL
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 
+const sessionDir = process.env.DB_PATH
+  ? path.dirname(process.env.DB_PATH)
+  : path.join(__dirname, 'data');
+
 app.use(session({
+  store: new SQLiteStore({ db: 'sessions.db', dir: sessionDir }),
   secret: process.env.SESSION_SECRET || 'dirt-dev-secret',
   resave: false,
   saveUninitialized: false,
