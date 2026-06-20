@@ -34,7 +34,14 @@ Return:
     }],
   });
 
-  const result = JSON.parse(msg.content[0].text);
+  let result;
+  try {
+    result = JSON.parse(msg.content[0].text);
+  } catch (_) {
+    const match = msg.content[0].text.match(/\{[\s\S]*\}/);
+    if (match) result = JSON.parse(match[0]);
+    else return { relevance: 15, quality: 15, actionability: 15, polish: 15, total: 60, feedback: 'Score parse failed — defaulting to 60', pass: false };
+  }
   result.total = result.relevance + result.quality + result.actionability + result.polish;
   result.pass  = result.total >= 65;
   return result;

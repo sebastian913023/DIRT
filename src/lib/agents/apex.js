@@ -39,7 +39,13 @@ Return this exact JSON structure:
     }],
   });
 
-  return JSON.parse(msg.content[0].text);
+  try {
+    return JSON.parse(msg.content[0].text);
+  } catch (_) {
+    const match = msg.content[0].text.match(/\{[\s\S]*\}/);
+    if (match) return JSON.parse(match[0]);
+    throw new Error('APEX returned invalid JSON for weekly plan');
+  }
 }
 
 // ── DAILY BRIEF ───────────────────────────────────────────────────────────────
@@ -89,7 +95,13 @@ Generate 1-2 tasks per agent (5-8 tasks total). Make each task highly specific a
     }],
   });
 
-  return JSON.parse(msg.content[0].text);
+  try {
+    return JSON.parse(msg.content[0].text);
+  } catch (_) {
+    const match = msg.content[0].text.match(/\{[\s\S]*\}/);
+    if (match) return JSON.parse(match[0]);
+    throw new Error('APEX returned invalid JSON for daily brief');
+  }
 }
 
 module.exports = { generateWeeklyPlan, generateDailyBrief };

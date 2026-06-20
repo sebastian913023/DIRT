@@ -110,7 +110,7 @@ router.post('/create-checkout-session', rateLimit, async (req, res) => {
     res.json({ url: session.url });
   } catch (err) {
     console.error('[checkout] Stripe error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Payment session could not be created. Please try again.' });
   }
 });
 

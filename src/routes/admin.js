@@ -101,10 +101,14 @@ const css = `
 
 const fonts = `<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>`;
 
+const stripeMode = (process.env.STRIPE_SECRET_KEY || '').startsWith('sk_live') ||
+                   (process.env.STRIPE_SECRET_KEY || '').startsWith('rk_live')
+  ? 'LIVE MODE' : 'TEST MODE';
+
 const navHtml = `
 <nav class="admin-nav">
   <div class="admin-nav__logo">⬡ DIRT — ADMIN</div>
-  <div class="admin-nav__badge">TEST MODE · STRIPE DASHBOARD</div>
+  <div class="admin-nav__badge">${stripeMode} · STRIPE DASHBOARD</div>
   <form method="POST" action="/admin/logout" style="margin:0">
     <button class="admin-nav__logout" type="submit">LOGOUT</button>
   </form>

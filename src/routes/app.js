@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express  = require('express');
 const path     = require('path');
 const { q }    = require('../lib/db');
@@ -43,25 +42,7 @@ router.post('/app/api/login', (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
 
-  let user = q.getUserByEmail.get(email.toLowerCase().trim());
-
-  // Dev convenience: auto-create demo user if DB is empty
-  if (!user) {
-    try {
-      q.createUser.run({
-        email:                   email.toLowerCase().trim(),
-        name:                    'Demo User',
-        company_name:            'My Startup',
-        industry:                'SaaS / Software',
-        stage:                   'Idea / Pre-revenue',
-        mission:                 'Building the future, one feature at a time.',
-        goal:                    'Launch my product / MVP',
-        stripe_customer_id:      null,
-        stripe_subscription_id:  null,
-      });
-      user = q.getUserByEmail.get(email.toLowerCase().trim());
-    } catch (_) {}
-  }
+  const user = q.getUserByEmail.get(email.toLowerCase().trim());
 
   if (!user) return res.status(404).json({ error: 'No account found for this email. Please complete checkout first.' });
 
@@ -116,7 +97,11 @@ router.get('/app/api/weekly-plan', requireUser, (req, res) => {
   const weekStart = getMondayISO();
   const plan = q.getCurrentPlan.get(req.user.id, weekStart);
   if (!plan) return res.json({ plan: null });
-  res.json({ plan: { ...plan, content: JSON.parse(plan.content) } });
+  try {
+    res.json({ plan: { ...plan, content: JSON.parse(plan.content) } });
+  } catch (_) {
+    res.status(500).json({ error: 'Plan data corrupted' });
+  }
 });
 
 router.post('/app/api/weekly-plan/generate', requireUser, async (req, res) => {
@@ -125,7 +110,11 @@ router.post('/app/api/weekly-plan/generate', requireUser, async (req, res) => {
   // Only one pending plan per week
   const existing = q.getCurrentPlan.get(req.user.id, weekStart);
   if (existing && existing.status !== 'complete') {
-    return res.json({ plan: { ...existing, content: JSON.parse(existing.content) } });
+    try {
+      return res.json({ plan: { ...existing, content: JSON.parse(existing.content) } });
+    } catch (_) {
+      return res.status(500).json({ error: 'Plan data corrupted' });
+    }
   }
 
   try {
@@ -161,7 +150,11 @@ router.get('/app/api/daily-brief', requireUser, (req, res) => {
   const brief = q.getTodayBrief.get(req.user.id, today);
   if (!brief) return res.json({ brief: null });
   const tasks = q.getTasksByBrief.all(brief.id);
-  res.json({ brief: { ...brief, content: JSON.parse(brief.content), tasks } });
+  try {
+    res.json({ brief: { ...brief, content: JSON.parse(brief.content), tasks } });
+  } catch (_) {
+    res.status(500).json({ error: 'Brief data corrupted' });
+  }
 });
 
 router.post('/app/api/daily-brief/generate', requireUser, async (req, res) => {
@@ -175,10 +168,17 @@ router.post('/app/api/daily-brief/generate', requireUser, async (req, res) => {
   const plan = q.getLatestApprovedPlan.get(req.user.id);
   if (!plan) return res.status(400).json({ error: 'Approve your weekly plan first' });
 
+  let planContent;
+  try {
+    planContent = JSON.parse(plan.content);
+  } catch (_) {
+    return res.status(500).json({ error: 'Weekly plan data corrupted' });
+  }
+
   try {
     emit(req.user.id, 'apex_thinking', { message: 'APEX is planning today\'s agent tasks...' });
 
-    const content = await generateDailyBrief(req.user, JSON.parse(plan.content), today);
+    const content = await generateDailyBrief(req.user, planContent, today);
 
     const result = q.insertBrief.run(req.user.id, plan.id, today, JSON.stringify(content));
     const brief  = { id: result.lastInsertRowid, content, status: 'pending_approval', tasks: [] };
@@ -198,15 +198,26 @@ router.post('/app/api/daily-brief/generate', requireUser, async (req, res) => {
 router.post('/app/api/daily-brief/:id/approve', requireUser, async (req, res) => {
   const briefId = parseInt(req.params.id);
   const brief   = q.getTodayBrief.get(req.user.id, getTodayISO());
+  const briefId = parseInt(req.params.id, 10);
+  if (isNaN(briefId)) return res.status(400).json({ error: 'Invalid brief ID' });
   if (!brief || brief.id !== briefId) return res.status(404).json({ error: 'Brief not found' });
   if (brief.status !== 'pending_approval') return res.json({ ok: true, message: 'Already approved' });
+
+  let briefContent;
+  try {
+    briefContent = JSON.parse(brief.content);
+  } catch (_) {
+    return res.status(500).json({ error: 'Brief data corrupted' });
+  }
+
+  const taskCount = briefContent.tasks?.length || 0;
+  if (req.user.credits_remaining < taskCount) {
+    return res.status(402).json({ error: `Not enough credits. Need ${taskCount}, have ${req.user.credits_remaining}.` });
+  }
 
   q.approveBrief.run(briefId, req.user.id);
   q.setExecuting.run(briefId);
   q.logActivity.run(req.user.id, 'USER', 'brief_approved', 'Daily brief approved — agents are executing', null);
-
-  // Create task records
-  const briefContent = JSON.parse(brief.content);
   const taskRecords  = briefContent.tasks.map(t => {
     const r = q.insertTask.run(req.user.id, briefId, t.agent, t.task, t.output_type);
     return { id: r.lastInsertRowid, agent_name: t.agent, task_description: t.task, output_type: t.output_type, status: 'queued' };
@@ -271,8 +282,10 @@ router.get('/app/api/outputs', requireUser, (req, res) => {
 });
 
 router.get('/app/api/outputs/:id', requireUser, (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) return res.status(400).json({ error: 'Invalid output ID' });
   const outputs = q.getOutputs.all(req.user.id);
-  const output  = outputs.find(o => o.id === parseInt(req.params.id));
+  const output  = outputs.find(o => o.id === id);
   if (!output) return res.status(404).json({ error: 'Not found' });
   res.json({ output });
 });

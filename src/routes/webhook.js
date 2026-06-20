@@ -72,6 +72,12 @@ router.post('/webhook', (req, res) => {
     case 'customer.subscription.deleted': {
       const sub = event.data.object;
       console.log('🔴 Subscription cancelled:', sub.id, '→ customer', sub.customer);
+      const cancelledUser = q.getUserByStripe.get(sub.customer);
+      if (cancelledUser) {
+        db.prepare('UPDATE users SET stripe_subscription_id = NULL, credits_remaining = 0 WHERE id = ?')
+          .run(cancelledUser.id);
+        console.log(`⬡  DIRT access revoked: ${cancelledUser.email}`);
+      }
       break;
     }
 
