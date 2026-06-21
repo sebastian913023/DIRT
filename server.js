@@ -17,9 +17,11 @@ const stripe   = require('./src/lib/stripe');
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
-// Ensure data directory exists before DB loads
-const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+// Ensure session/data dir exists at startup
+const sessionDir = process.env.DB_PATH
+  ? path.dirname(process.env.DB_PATH)
+  : path.join(__dirname, 'data');
+try { fs.mkdirSync(sessionDir, { recursive: true }); } catch (_) {}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function escHtml(str) {
@@ -35,12 +37,19 @@ const allowedOrigins = process.env.APP_URL
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 
-const sessionDir = process.env.DB_PATH
-  ? path.dirname(process.env.DB_PATH)
-  : path.join(__dirname, 'data');
+let sessionStore;
+try {
+  sessionStore = new SQLiteStore({ db: 'sessions.db', dir: sessionDir });
+  sessionStore.on('error', (err) => {
+    console.warn('[session] store error (falling back to memory):', err.message);
+    sessionStore = undefined;
+  });
+} catch (err) {
+  console.warn('[session] SQLiteStore failed (using memory):', err.message);
+}
 
 app.use(session({
-  store: new SQLiteStore({ db: 'sessions.db', dir: sessionDir }),
+  store: sessionStore,
   secret: process.env.SESSION_SECRET || 'dirt-dev-secret',
   resave: false,
   saveUninitialized: false,
