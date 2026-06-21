@@ -7,8 +7,9 @@ const dataDir = process.env.DB_PATH
   : path.join(__dirname, '../../data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
-const db = new Database(process.env.DB_PATH || path.join(dataDir, 'dirt.db'));
-db.pragma('busy_timeout = 30000');  // wait up to 30s for locks during rolling deploys
+const db = new Database(process.env.DB_PATH || path.join(dataDir, 'dirt.db'), {
+  timeout: 30000,  // wait up to 30s for SQLite locks at open time (Railway rolling deploys)
+});
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
