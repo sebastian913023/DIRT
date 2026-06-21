@@ -1,2 +1,5 @@
 [phases.setup]
 nixPkgs = ["nodejs_20", "python3", "gnumake", "gcc"]
+
+[phases.install]
+cmds = ["npm_config_build_from_source=true npm ci"]
