@@ -2,140 +2,161 @@ const Database = require('better-sqlite3');
 const path     = require('path');
 const fs       = require('fs');
 
-const dataDir = process.env.DB_PATH
-  ? path.dirname(process.env.DB_PATH)
-  : path.join(__dirname, '../../data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+// ── LAZY INIT ─────────────────────────────────────────────────────────────────
+// db.js defers opening the SQLite file until the first request.
+// This lets the HTTP port bind first so Railway's health check passes and
+// the old container (which holds the /data volume lock) is killed before
+// we attempt to open the database.
+let _db = null;
+let _q  = null;
 
-const db = new Database(process.env.DB_PATH || path.join(dataDir, 'dirt.db'), {
-  timeout: 30000,  // wait up to 30s for SQLite locks at open time (Railway rolling deploys)
+function initDb() {
+  if (_db) return;
+
+  const dbPath = process.env.DB_PATH;
+  const dataDir = dbPath
+    ? path.dirname(dbPath)
+    : path.join(__dirname, '../../data');
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+
+  console.log('[db] Opening database at', dbPath || path.join(dataDir, 'dirt.db'));
+
+  _db = new Database(dbPath || path.join(dataDir, 'dirt.db'), {
+    timeout: 30000,
+  });
+  _db.pragma('journal_mode = WAL');
+  _db.pragma('foreign_keys = ON');
+
+  _db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+      email                  TEXT    UNIQUE NOT NULL,
+      name                   TEXT,
+      company_name           TEXT,
+      industry               TEXT,
+      stage                  TEXT,
+      mission                TEXT,
+      goal                   TEXT,
+      stripe_customer_id     TEXT    UNIQUE,
+      stripe_subscription_id TEXT,
+      credits_remaining      INTEGER DEFAULT 45,
+      created_at             INTEGER DEFAULT (unixepoch()),
+      last_active            INTEGER DEFAULT (unixepoch())
+    );
+
+    CREATE TABLE IF NOT EXISTS weekly_plans (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id     INTEGER NOT NULL REFERENCES users(id),
+      week_start  TEXT    NOT NULL,
+      content     TEXT    NOT NULL,
+      status      TEXT    DEFAULT 'pending_approval',
+      created_at  INTEGER DEFAULT (unixepoch()),
+      approved_at INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS daily_briefs (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id      INTEGER NOT NULL REFERENCES users(id),
+      plan_id      INTEGER REFERENCES weekly_plans(id),
+      brief_date   TEXT    NOT NULL,
+      content      TEXT    NOT NULL,
+      status       TEXT    DEFAULT 'pending_approval',
+      created_at   INTEGER DEFAULT (unixepoch()),
+      approved_at  INTEGER,
+      completed_at INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS tasks (
+      id               INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id          INTEGER NOT NULL REFERENCES users(id),
+      brief_id         INTEGER REFERENCES daily_briefs(id),
+      agent_name       TEXT    NOT NULL,
+      task_description TEXT    NOT NULL,
+      output_type      TEXT,
+      status           TEXT    DEFAULT 'queued',
+      output           TEXT,
+      quality_score    INTEGER,
+      quality_feedback TEXT,
+      attempts         INTEGER DEFAULT 0,
+      created_at       INTEGER DEFAULT (unixepoch()),
+      completed_at     INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS activity_log (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id    INTEGER NOT NULL REFERENCES users(id),
+      timestamp  INTEGER DEFAULT (unixepoch()),
+      agent_name TEXT,
+      event_type TEXT,
+      message    TEXT,
+      metadata   TEXT
+    );
+  `);
+
+  _q = {
+    getUserByEmail:    _db.prepare('SELECT * FROM users WHERE email = ?'),
+    getUserById:       _db.prepare('SELECT * FROM users WHERE id = ?'),
+    getUserByStripe:   _db.prepare('SELECT * FROM users WHERE stripe_customer_id = ?'),
+    createUser:        _db.prepare(`
+      INSERT OR IGNORE INTO users (email, name, company_name, industry, stage, mission, goal, stripe_customer_id, stripe_subscription_id)
+      VALUES (@email, @name, @company_name, @industry, @stage, @mission, @goal, @stripe_customer_id, @stripe_subscription_id)
+    `),
+    updateUserActivity: _db.prepare('UPDATE users SET last_active = unixepoch() WHERE id = ?'),
+    deductCredit:       _db.prepare('UPDATE users SET credits_remaining = credits_remaining - 1 WHERE id = ? AND credits_remaining > 0'),
+
+    getCurrentPlan: _db.prepare(`
+      SELECT * FROM weekly_plans WHERE user_id = ? AND week_start = ?
+      ORDER BY created_at DESC LIMIT 1
+    `),
+    getLatestApprovedPlan: _db.prepare(`
+      SELECT * FROM weekly_plans WHERE user_id = ? AND status = 'approved'
+      ORDER BY created_at DESC LIMIT 1
+    `),
+    insertPlan:   _db.prepare('INSERT INTO weekly_plans (user_id, week_start, content) VALUES (?, ?, ?)'),
+    approvePlan:  _db.prepare("UPDATE weekly_plans SET status = 'approved', approved_at = unixepoch() WHERE id = ? AND user_id = ?"),
+
+    getTodayBrief: _db.prepare(`
+      SELECT * FROM daily_briefs WHERE user_id = ? AND brief_date = ?
+      ORDER BY created_at DESC LIMIT 1
+    `),
+    insertBrief:     _db.prepare('INSERT INTO daily_briefs (user_id, plan_id, brief_date, content) VALUES (?, ?, ?, ?)'),
+    approveBrief:    _db.prepare("UPDATE daily_briefs SET status = 'approved', approved_at = unixepoch() WHERE id = ? AND user_id = ?"),
+    setExecuting:    _db.prepare("UPDATE daily_briefs SET status = 'executing' WHERE id = ?"),
+    completeBrief:   _db.prepare("UPDATE daily_briefs SET status = 'complete', completed_at = unixepoch() WHERE id = ?"),
+
+    insertTask:    _db.prepare('INSERT INTO tasks (user_id, brief_id, agent_name, task_description, output_type) VALUES (?, ?, ?, ?, ?)'),
+    setRunning:    _db.prepare("UPDATE tasks SET status = 'running', attempts = attempts + 1 WHERE id = ?"),
+    completeTask:  _db.prepare("UPDATE tasks SET status = 'complete', output = ?, quality_score = ?, quality_feedback = ?, completed_at = unixepoch() WHERE id = ?"),
+    failTask:      _db.prepare("UPDATE tasks SET status = 'failed' WHERE id = ?"),
+    getTasksByBrief: _db.prepare('SELECT * FROM tasks WHERE brief_id = ? ORDER BY id ASC'),
+    getOutputs:    _db.prepare(`
+      SELECT t.*, db.brief_date FROM tasks t
+      JOIN daily_briefs db ON t.brief_id = db.id
+      WHERE t.user_id = ? AND t.status = 'complete'
+      ORDER BY t.completed_at DESC LIMIT 50
+    `),
+
+    logActivity: _db.prepare(`
+      INSERT INTO activity_log (user_id, agent_name, event_type, message, metadata)
+      VALUES (?, ?, ?, ?, ?)
+    `),
+    getActivity: _db.prepare(`
+      SELECT * FROM activity_log WHERE user_id = ?
+      ORDER BY timestamp DESC LIMIT 100
+    `),
+  };
+
+  console.log('[db] Ready');
+}
+
+// Proxy objects that lazily open the database on first access
+const db = new Proxy({}, {
+  get(_, prop) { initDb(); return _db[prop]; },
+  set(_, prop, val) { initDb(); _db[prop] = val; return true; },
 });
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id                     INTEGER PRIMARY KEY AUTOINCREMENT,
-    email                  TEXT    UNIQUE NOT NULL,
-    name                   TEXT,
-    company_name           TEXT,
-    industry               TEXT,
-    stage                  TEXT,
-    mission                TEXT,
-    goal                   TEXT,
-    stripe_customer_id     TEXT    UNIQUE,
-    stripe_subscription_id TEXT,
-    credits_remaining      INTEGER DEFAULT 45,
-    created_at             INTEGER DEFAULT (unixepoch()),
-    last_active            INTEGER DEFAULT (unixepoch())
-  );
-
-  CREATE TABLE IF NOT EXISTS weekly_plans (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id     INTEGER NOT NULL REFERENCES users(id),
-    week_start  TEXT    NOT NULL,
-    content     TEXT    NOT NULL,
-    status      TEXT    DEFAULT 'pending_approval',
-    created_at  INTEGER DEFAULT (unixepoch()),
-    approved_at INTEGER
-  );
-
-  CREATE TABLE IF NOT EXISTS daily_briefs (
-    id           INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id      INTEGER NOT NULL REFERENCES users(id),
-    plan_id      INTEGER REFERENCES weekly_plans(id),
-    brief_date   TEXT    NOT NULL,
-    content      TEXT    NOT NULL,
-    status       TEXT    DEFAULT 'pending_approval',
-    created_at   INTEGER DEFAULT (unixepoch()),
-    approved_at  INTEGER,
-    completed_at INTEGER
-  );
-
-  CREATE TABLE IF NOT EXISTS tasks (
-    id               INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id          INTEGER NOT NULL REFERENCES users(id),
-    brief_id         INTEGER REFERENCES daily_briefs(id),
-    agent_name       TEXT    NOT NULL,
-    task_description TEXT    NOT NULL,
-    output_type      TEXT,
-    status           TEXT    DEFAULT 'queued',
-    output           TEXT,
-    quality_score    INTEGER,
-    quality_feedback TEXT,
-    attempts         INTEGER DEFAULT 0,
-    created_at       INTEGER DEFAULT (unixepoch()),
-    completed_at     INTEGER
-  );
-
-  CREATE TABLE IF NOT EXISTS activity_log (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id    INTEGER NOT NULL REFERENCES users(id),
-    timestamp  INTEGER DEFAULT (unixepoch()),
-    agent_name TEXT,
-    event_type TEXT,
-    message    TEXT,
-    metadata   TEXT
-  );
-`);
-
-// ── HELPERS ───────────────────────────────────────────────────────────────────
-const q = {
-  // Users
-  getUserByEmail:    db.prepare('SELECT * FROM users WHERE email = ?'),
-  getUserById:       db.prepare('SELECT * FROM users WHERE id = ?'),
-  getUserByStripe:   db.prepare('SELECT * FROM users WHERE stripe_customer_id = ?'),
-  createUser:        db.prepare(`
-    INSERT OR IGNORE INTO users (email, name, company_name, industry, stage, mission, goal, stripe_customer_id, stripe_subscription_id)
-    VALUES (@email, @name, @company_name, @industry, @stage, @mission, @goal, @stripe_customer_id, @stripe_subscription_id)
-  `),
-  updateUserActivity: db.prepare('UPDATE users SET last_active = unixepoch() WHERE id = ?'),
-  deductCredit:       db.prepare('UPDATE users SET credits_remaining = credits_remaining - 1 WHERE id = ? AND credits_remaining > 0'),
-
-  // Weekly plans
-  getCurrentPlan: db.prepare(`
-    SELECT * FROM weekly_plans WHERE user_id = ? AND week_start = ?
-    ORDER BY created_at DESC LIMIT 1
-  `),
-  getLatestApprovedPlan: db.prepare(`
-    SELECT * FROM weekly_plans WHERE user_id = ? AND status = 'approved'
-    ORDER BY created_at DESC LIMIT 1
-  `),
-  insertPlan:   db.prepare('INSERT INTO weekly_plans (user_id, week_start, content) VALUES (?, ?, ?)'),
-  approvePlan:  db.prepare("UPDATE weekly_plans SET status = 'approved', approved_at = unixepoch() WHERE id = ? AND user_id = ?"),
-
-  // Daily briefs
-  getTodayBrief: db.prepare(`
-    SELECT * FROM daily_briefs WHERE user_id = ? AND brief_date = ?
-    ORDER BY created_at DESC LIMIT 1
-  `),
-  insertBrief:     db.prepare('INSERT INTO daily_briefs (user_id, plan_id, brief_date, content) VALUES (?, ?, ?, ?)'),
-  approveBrief:    db.prepare("UPDATE daily_briefs SET status = 'approved', approved_at = unixepoch() WHERE id = ? AND user_id = ?"),
-  setExecuting:    db.prepare("UPDATE daily_briefs SET status = 'executing' WHERE id = ?"),
-  completeBrief:   db.prepare("UPDATE daily_briefs SET status = 'complete', completed_at = unixepoch() WHERE id = ?"),
-
-  // Tasks
-  insertTask:    db.prepare('INSERT INTO tasks (user_id, brief_id, agent_name, task_description, output_type) VALUES (?, ?, ?, ?, ?)'),
-  setRunning:    db.prepare("UPDATE tasks SET status = 'running', attempts = attempts + 1 WHERE id = ?"),
-  completeTask:  db.prepare("UPDATE tasks SET status = 'complete', output = ?, quality_score = ?, quality_feedback = ?, completed_at = unixepoch() WHERE id = ?"),
-  failTask:      db.prepare("UPDATE tasks SET status = 'failed' WHERE id = ?"),
-  getTasksByBrief: db.prepare('SELECT * FROM tasks WHERE brief_id = ? ORDER BY id ASC'),
-  getOutputs:    db.prepare(`
-    SELECT t.*, db.brief_date FROM tasks t
-    JOIN daily_briefs db ON t.brief_id = db.id
-    WHERE t.user_id = ? AND t.status = 'complete'
-    ORDER BY t.completed_at DESC LIMIT 50
-  `),
-
-  // Activity
-  logActivity: db.prepare(`
-    INSERT INTO activity_log (user_id, agent_name, event_type, message, metadata)
-    VALUES (?, ?, ?, ?, ?)
-  `),
-  getActivity: db.prepare(`
-    SELECT * FROM activity_log WHERE user_id = ?
-    ORDER BY timestamp DESC LIMIT 100
-  `),
-};
+const q = new Proxy({}, {
+  get(_, prop) { initDb(); return _q[prop]; },
+});
 
 module.exports = { db, q };
