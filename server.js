@@ -162,6 +162,8 @@ app.get('/campaign', (req, res) =>
 
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
+app.get('/version', (req, res) => res.json({ sha: '3dbe5c6', routes: ['/mobile','/agency','/checkout-v2','/platform'], ts: new Date().toISOString() }));
+
 // ── START ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`\n⬡  DIRT server  →  http://localhost:${PORT}`);
