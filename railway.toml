@@ -2,7 +2,7 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "node server.js"
+startCommand = "echo '[container] started' && node -v && echo '[container] launching server' && node server.js"
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
