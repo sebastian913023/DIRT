@@ -196,9 +196,8 @@ router.post('/app/api/daily-brief/generate', requireUser, async (req, res) => {
 });
 
 router.post('/app/api/daily-brief/:id/approve', requireUser, async (req, res) => {
-  const briefId = parseInt(req.params.id);
-  const brief   = q.getTodayBrief.get(req.user.id, getTodayISO());
   const briefId = parseInt(req.params.id, 10);
+  const brief   = q.getTodayBrief.get(req.user.id, getTodayISO());
   if (isNaN(briefId)) return res.status(400).json({ error: 'Invalid brief ID' });
   if (!brief || brief.id !== briefId) return res.status(404).json({ error: 'Brief not found' });
   if (brief.status !== 'pending_approval') return res.json({ ok: true, message: 'Already approved' });
