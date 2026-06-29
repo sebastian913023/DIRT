@@ -45,11 +45,14 @@ STRIPE_SECRET_KEY             sk_test_... or sk_live_...
 STRIPE_WEBHOOK_SECRET         whsec_... (from stripe listen)
 STRIPE_PRICE_ID               price_... ($10/mo standard)
 STRIPE_PRICE_ID_DISCOUNTED    price_... ($5/mo referral)
+ANTHROPIC_API_KEY             sk-ant-... (from console.anthropic.com)
 ADMIN_USERNAME                dirt_admin
 ADMIN_PASSWORD_HASH           bcrypt hash of admin password
 SESSION_SECRET                random secret for express-session
 APP_URL                       blank for localhost, set in prod
 PORT                          3001 (locally, HyperLLM owns 3000)
+DB_PATH                       blank locally; /data/dirt.db on Railway
+NODE_ENV                      development (locally) / production (Railway)
 ```
 
 ## Run Locally
